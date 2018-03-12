@@ -7,6 +7,7 @@ module WealthForge
     attr_accessor :wf_crt_file
     attr_accessor :wf_key_file
     attr_accessor :environment
+    attr_accessor :version
 
 
     def initialize
@@ -14,7 +15,10 @@ module WealthForge
       @wf_key      = nil
       @wf_crt_file = nil
       @wf_crt_key  = nil
-      @environment = "production"
+      @environment = 'production'
+      # @environment = 'production'
+      # @environment = 'production'
+      @environment = 'v1'
     end
 
   end
