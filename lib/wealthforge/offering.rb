@@ -13,6 +13,6 @@ class WealthForge::Offering
 
   def self.get(offering_id)
     WealthForge::Connection.get "offering/#{offering_id}", nil
-  end  
+  end
 
 end

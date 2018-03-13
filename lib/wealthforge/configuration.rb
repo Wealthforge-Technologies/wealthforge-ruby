@@ -15,10 +15,10 @@ module WealthForge
       @wf_key      = nil
       @wf_crt_file = nil
       @wf_crt_key  = nil
-      @environment = 'production'
+      @environment = 'local'
       # @environment = 'production'
       # @environment = 'production'
-      @environment = 'v1'
+      @version = 'v1'
     end
 
   end
