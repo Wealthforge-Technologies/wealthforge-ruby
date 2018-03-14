@@ -50,7 +50,7 @@ class WealthForge::Connection
   end
 
 
-  private
+
 
 
   def self.prep_params(params)
@@ -73,9 +73,9 @@ class WealthForge::Connection
         when 'qa1'
           api_endpoint = "https://api.wealthforge.org/#{WealthForge.configuration.version}/"
         when 'stage'
-          api_endpoint = '__TODO__'
+          api_endpoint = '__TODO__' #TODO
         when 'prod'
-          api_endpoint = '__TODO__'
+          api_endpoint = '__TODO__' #TODO
         else
           puts '__ERROR__: Invalid environment in Configuration'
       end
@@ -92,21 +92,36 @@ class WealthForge::Connection
 
     return Faraday.new(:url => api_endpoint) do |faraday|
       faraday.request :url_encoded
-      faraday.headers['authorization'] = self.authorization
+      faraday.headers['token'] = self.token
       faraday.adapter Faraday.default_adapter
     end
   end
 
-  def self.authorization
+  def self.retrieve_authorization
+    file = File.read('configs/config.json')
+    config_data = JSON.parse(file)
+
+    # when does the token expire????
+    # save in the config.json????
+
+
+  end
+
+  def self.token
     # TODO: un-hardcode these!!!!!!!
-    wf_cert = 'TN58k1nteFQn3e4cmliVSOdJZXIKGC0g'
-    wf_key = 'LNyY-L3H4XuotbKQdzWFV2BT9AzIxhjvygMTZrgKTCD4uw9efN73IBBU9h94WtdX'
+
+
+    # wf_cert = 'TN58k1nteFQn3e4cmliVSOdJZXIKGC0g'
+    # wf_key = 'LNyY-L3H4XuotbKQdzWFV2BT9AzIxhjvygMTZrgKTCD4uw9efN73IBBU9h94WtdX'
     # wf_cert = !WealthForge.configuration.wf_crt.nil? ? WealthForge.configuration.wf_crt : File.read(WealthForge.configuration.wf_crt_file)
     # wf_key  = !WealthForge.configuration.wf_key.nil? ? WealthForge.configuration.wf_key : File.read(WealthForge.configuration.wf_key_file)
+    self.retrieve_authorization #TODO:____________############
+    # no creds on local
+    if WealthForge.configuration.environment == 'local'
+      return ''
+    end
 
-    p '==Getting Cert=='
-
-    bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{wf_cert}\",\"clientSecret\":\"#{wf_key}\"},\"type\":\"tokens\"}}"
+      bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{wf_cert}\",\"clientSecret\":\"#{wf_key}\"},\"type\":\"tokens\"}}"
     cert = Faraday.new.post(api_endpoint + 'auth/tokens') do |faraday|
       faraday.body = bod
     end.body
