@@ -1,6 +1,6 @@
 {
-  "wf_cert": "TN58k1nteFQn3e4cmliVSOdJZXIKGC0g",
-  "wf_key": "LNyY-L3H4XuotbKQdzWFV2BT9AzIxhjvygMTZrgKTCD4uw9efN73IBBU9h94WtdX",
-  
+  "wf_cert": "",
+  "wf_key": "",
+
   "COMMENT": "these are from WealthForge. Create a file named config.json"
 }

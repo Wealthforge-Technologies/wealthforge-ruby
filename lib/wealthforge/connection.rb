@@ -8,6 +8,13 @@ require 'resolv-replace'
 
 class WealthForge::Connection
 
+  def initialize()
+    @wf_key
+    @wf_cert
+    @wf_token
+  end
+
+
   def self.post(endpoint, params)
     begin
       response = connection.post do |req|
@@ -19,6 +26,25 @@ class WealthForge::Connection
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
+
+    # check if token has expired, if so then get the token again and try again
+    if response.status == 401
+      retrieve_authorization
+
+      begin
+        response = connection.post do |req|
+          req.url endpoint
+          req.headers['Content-Type'] = 'application/json'
+          req.body = prep_params(params)
+        end
+        JSON.parse(response.body, symbolize_names: true)
+      rescue => e
+        raise WealthForge::ApiException.new(e)
+      end
+    end
+
+  return response
+
   end
 
 
@@ -33,10 +59,30 @@ class WealthForge::Connection
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
+
+    # check if token has expired, if so then get the token again and try again
+    if response.status == 401
+      retrieve_authorization
+
+      begin
+        response = connection.put do |req|
+          req.url endpoint
+          req.headers['Content-Type'] = 'application/json'
+          req.body = prep_params(params)
+        end
+        JSON.parse(response.body, symbolize_names: true)
+      rescue => e
+        raise WealthForge::ApiException.new(e)
+      end
+    end
+
+  return response
+
   end
 
 
-  def self.get(endpoint, params, raw=false)
+  def self.get(endpoint, params, raw = false)
+
     begin
       response = connection.get do |req|
         req.url endpoint
@@ -47,10 +93,27 @@ class WealthForge::Connection
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
+
+    # check if token has expired, if so then get the token again and try again
+    if response.status == 401
+
+      retrieve_authorization
+
+      begin
+        response = connection.get do |req|
+          req.url endpoint
+          req.headers['Content-Type'] = 'application/json'
+          req.body = prep_params(params)
+        end
+        raw == false ? JSON.parse(response.body, symbolize_names: true) : response.body
+      rescue => e
+        raise WealthForge::ApiException.new(e)
+      end
+    end
+
+  return response
+
   end
-
-
-
 
 
   def self.prep_params(params)
@@ -62,8 +125,10 @@ class WealthForge::Connection
     wf_params.to_json
   end
 
+
   def self.api_endpoint
     api_endpoint = ''
+
     unless WealthForge.configuration.environment.nil?
       case WealthForge.configuration.environment
         when 'local'
@@ -77,7 +142,7 @@ class WealthForge::Connection
         when 'prod'
           api_endpoint = '__TODO__' #TODO
         else
-          puts '__ERROR__: Invalid environment in Configuration'
+          puts '__ERROR__: Invalid environment in configuration'
       end
     end
     return api_endpoint
@@ -86,48 +151,60 @@ class WealthForge::Connection
 
 
   def self.connection
-    # api_endpoint = (!WealthForge.configuration.environment.nil? and WealthForge.configuration.environment.eql? 'production') ?
-    #   'https://www.capitalforge.com/capitalforge-transaction/api/' :
-    #   'https://sandbox.capitalforge.com/capitalforge-transaction/api/'
+    if @wf_token.nil?
+    @wf_token = 'dummy token'
+    end
 
     return Faraday.new(:url => api_endpoint) do |faraday|
       faraday.request :url_encoded
-      faraday.headers['token'] = self.token
+      faraday.headers['token'] = @wf_token
       faraday.adapter Faraday.default_adapter
     end
-  end
-
-  def self.retrieve_authorization
-    file = File.read('configs/config.json')
-    config_data = JSON.parse(file)
-
-    # when does the token expire????
-    # save in the config.json????
-
 
   end
 
-  def self.token
-    # TODO: un-hardcode these!!!!!!!
 
+  def self.retrieve_token
 
-    # wf_cert = 'TN58k1nteFQn3e4cmliVSOdJZXIKGC0g'
-    # wf_key = 'LNyY-L3H4XuotbKQdzWFV2BT9AzIxhjvygMTZrgKTCD4uw9efN73IBBU9h94WtdX'
-    # wf_cert = !WealthForge.configuration.wf_crt.nil? ? WealthForge.configuration.wf_crt : File.read(WealthForge.configuration.wf_crt_file)
-    # wf_key  = !WealthForge.configuration.wf_key.nil? ? WealthForge.configuration.wf_key : File.read(WealthForge.configuration.wf_key_file)
-    self.retrieve_authorization #TODO:____________############
     # no creds on local
     if WealthForge.configuration.environment == 'local'
       return ''
     end
 
-      bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{wf_cert}\",\"clientSecret\":\"#{wf_key}\"},\"type\":\"tokens\"}}"
+    # get the cert and key if not retrieved from configs yet
+    if @wf_cert.nil? && @wf_key.nil?
+      self.retrieve_authorization
+    end
+
+    bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_cert}\",\"clientSecret\":\"#{@wf_key}\"},\"type\":\"tokens\"}}"
     cert = Faraday.new.post(api_endpoint + 'auth/tokens') do |faraday|
       faraday.body = bod
     end.body
-    # TODO: this probably shouldnt be requested every time
 
-    return 'Bearer ' + JSON.parse(cert)['data']['attributes']['accessToken']
+    @wf_token = 'Bearer ' + JSON.parse(cert)['data']['attributes']['accessToken']
+
+  end
+
+
+  def self.retrieve_authorization
+
+    begin
+      file = File.read('configs/config.json')
+      config_data = JSON.parse(file)
+      file.close
+    rescue => err
+      p '__ERROR__ Please make a config file in configs/'
+      puts "Exception: #{err}"
+      err
+    end
+
+    if config_data['wf_cert'].nil? || config_data['wf_key'].nil?
+      p '__ERROR__ Please config the key and cert in configs/config.json'
+    else
+      @wf_cert = config_data['wf_cert']
+      @wf_key = config_data['wf_key']
+    end
+    @wf_token = retrieve_token
 
   end
 
