@@ -15,10 +15,6 @@ class WealthForge::Offering
   #   WealthForge::Connection.get "offering/#{offering_id}", nil
   # end
 
-
-
-
-
   # def self.all
   #   WealthForge::Connection.get "offering", nil
   # end

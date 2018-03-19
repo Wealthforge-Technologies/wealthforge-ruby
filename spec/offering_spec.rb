@@ -7,12 +7,13 @@ describe WealthForge::Offering do
     before do
       @offering_id = "3d609eb4-93aa-444c-be02-72ee5ec584ad"
       WealthForge.configure do |config|
-        config.environment = 'local'
+        config.environment = 'ci'
       end
     end
 
 
     it "create offering" do
+
       params = {
         data: {
           attributes: {
@@ -21,17 +22,29 @@ describe WealthForge::Offering do
             startDate: '2008-01-02',
             endDate: '2008-01-03',
             minimumRaise: '27.00',
-            maximumRaise: '27.01'
+            maximumRaise: '27.01',
+            minimumInvestment: '123333', # 500 error when missing
+            paymentMethod: 'ACH',
+            classTitle: 'RCP debt loan terms (3 yr, 4 yr, 5 yr)',
+            securityTypes: [
+              {
+                type: 'DEBT',  # 500 error when missing
+                securityPrice: '1500653.29', # 500 error when missing
+                interestRate: '0.059', # 500 error when missing
+                numMonthsToMaturity: 73, # 500 error when missing
+                numNotesOffered: 1010, # 500 error when missing
+                distributionFrequency: 'MONTHLY' # 500 error when missing
+              }
+            ]
           },
           type: 'offerings'
         }
       }
 
-      VCR.use_cassette 'create_offering', record: :none do
+      # VCR.use_cassette 'create_offering', record: :none do
         response = WealthForge::Offering.create params
-        p response
-        # expect(response[:errors].length).to eq 0 #TODO: there is no error field passed back????
-      end
+        expect(response.status).not_to be_between(400, 600)
+      # end
     end
 
 

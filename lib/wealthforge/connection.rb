@@ -157,8 +157,11 @@ class WealthForge::Connection
 
     return Faraday.new(:url => api_endpoint) do |faraday|
       faraday.request :url_encoded
-      faraday.headers['token'] = @wf_token
+      faraday.headers['authorization'] = @wf_token
       faraday.adapter Faraday.default_adapter
+      faraday.use Faraday::Response::RaiseError
+      faraday.use CustomErrors
+
     end
 
   end
@@ -206,6 +209,27 @@ class WealthForge::Connection
     end
     @wf_token = retrieve_token
 
+  end
+
+end
+
+
+class CustomErrors < Faraday::Response::RaiseError
+
+  def on_complete(env)
+    case env[:status]
+    when 400
+      raise "400 (Bad Request) Response: \n #{JSON.parse(env['body'])}"
+    when 422
+      raise "422 (Unprocessable Entity) Response: \n #{JSON.parse(env['body'])}"
+    when 500
+      raise "500 (Internal Server Error) Response: \n #{JSON.parse(env['body'])}"
+    when 400...600
+      p "Response Body: \n#{JSON.parse(env['body'])}"
+      super
+    else
+      super
+    end
   end
 
 end
