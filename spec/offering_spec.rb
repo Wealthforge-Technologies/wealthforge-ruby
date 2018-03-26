@@ -7,7 +7,7 @@ describe WealthForge::Offering do
     before do
       @offering_id = "3d609eb4-93aa-444c-be02-72ee5ec584ad"
       WealthForge.configure do |config|
-        config.environment = 'ci'
+        config.environment = 'local'
       end
     end
 
@@ -43,6 +43,8 @@ describe WealthForge::Offering do
 
       # VCR.use_cassette 'create_offering', record: :none do
         response = WealthForge::Offering.create params
+      pp JSON.parse response.env.body
+
         expect(response.status).not_to be_between(400, 600)
       # end
     end
@@ -56,12 +58,14 @@ describe WealthForge::Offering do
     #   end
     # end
     #
-    # it "get offering" do
-    #   VCR.use_cassette 'get_offering_by_id', record: :none do
-    #     response = WealthForge::Offering.get @offering_id
-    #     expect(response[:errors].length).to eq 0
-    #   end
-    # end
+
+    it "get offering" do
+      # VCR.use_cassette 'get_offering_by_id', record: :none do
+        response = WealthForge::Offering.get 'cf99116c-1209-47a7-a52a-46332ed7245f'
+      pp JSON.parse response.env.body
+        # expect(response[:errors].length).to eq 0
+      # end
+    end
 
     #
     # it "update offering" do

@@ -88,6 +88,7 @@ class WealthForge::Connection
         req.url endpoint
         req.headers['Content-Type'] = 'application/json'
         req.body = prep_params(params)
+
       end
       raw == false ? JSON.parse(response.body, symbolize_names: true) : response.body
     rescue => e
