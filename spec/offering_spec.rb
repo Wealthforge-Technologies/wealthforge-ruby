@@ -1,4 +1,5 @@
-require "spec_helper"
+require 'spec_helper'
+require 'pp'
 
 describe WealthForge::Offering do
 
@@ -14,42 +15,41 @@ describe WealthForge::Offering do
 
     it "create offering" do
 
-      params = {
-        data: {
-          attributes: {
-            title: 'title 11',
-            offeringType: 'REG_D_506_B',
-            startDate: '2008-01-02',
-            endDate: '2008-01-03',
-            minimumRaise: '27.00',
-            maximumRaise: '27.01',
-            minimumInvestment: '123333', # 500 error when missing
-            paymentMethod: 'ACH',
-            classTitle: 'RCP debt loan terms (3 yr, 4 yr, 5 yr)',
-            securityTypes: [
-              {
-                type: 'DEBT',  # 500 error when missing
-                securityPrice: '1500653.29', # 500 error when missing
-                interestRate: '0.059', # 500 error when missing
-                numMonthsToMaturity: 73, # 500 error when missing
-                numNotesOffered: 1010, # 500 error when missing
-                distributionFrequency: 'MONTHLY' # 500 error when missing
-              }
-            ]
-          },
-          type: 'offerings'
-        }
-      }
+      old_json = JSON['{
+        "issuer":"857355020872",
+        "totalShare":1000000,
+        "previouslyRaised":0,
+        "minRaise":999999,
+        "maxRaise":1000000,
+        "offerDetails":[
+            {
+                "minInvestment":50000,
+                "minRaise":999999,
+                "maxRaise":1000000,
+                "issued":1000000,
+                "price":1,
+                "postMoneyValuation":1000000,
+                "offerDetailType":"EQUITY",
+                "instrumentType":"SHARE_COMMON",
+                "regulationType":"MEMO_EQUITY_D506C"
+            }
+        ],
+        "status":"OFFERING_PENDING",
+        "dateStart":"2019-03-05",
+        "dateEnd":"2020-05-06"
+      }']
+
+      params = old_to_new_create(old_json)
+
 
       # VCR.use_cassette 'create_offering', record: :none do
-        response = WealthForge::Offering.create params
+      response = WealthForge::Offering.create params
       pp JSON.parse response.env.body
-
-        expect(response.status).not_to be_between(400, 600)
+      expect(response.status).not_to be_between(400, 600)
       # end
     end
 
-
+    # TODO: list of offerings
     # it "get list of offerings" do
     #   VCR.use_cassette 'list_offerings', record: :none do
     #     response = WealthForge::Offering.all
@@ -57,120 +57,64 @@ describe WealthForge::Offering do
     #     expect(response[:errors].length).to eq 0
     #   end
     # end
-    #
+
 
     it "get offering" do
       # VCR.use_cassette 'get_offering_by_id', record: :none do
-        response = WealthForge::Offering.get 'cf99116c-1209-47a7-a52a-46332ed7245f'
+      response = WealthForge::Offering.get 'cf99116c-1209-47a7-a52a-46332ed7245f'
       pp JSON.parse response.env.body
-        # expect(response[:errors].length).to eq 0
+      expect(response.status).not_to be_between(400, 600)
+
+      # expect(response[:errors].length).to eq 0
       # end
     end
 
-    #
-    # it "update offering" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "get redirect URL" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "get offering status" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "get offering account" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "update offering account" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    # it "request offering approval" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "offering due diligence file" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    # it "offering due diligence folder" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "create offering escrow" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "update offering escrow" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "offering investments" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "offering details" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "update offering detail" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "offering list of memos" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "create/replace offering memo" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "offering placement agreement" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "create/replace offering placement agreement" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "get offering tri-party escrow" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "create/replace offering escrow agreement" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "get offering w-9" do
-    #   skip "Not yet implemented"
-    # end
-    #
-    #
-    # it "create/replace offering w-9" do
-    #   skip "Not yet implemented"
-    # end
+  end
 
+
+  # ========================
+  # ==== helper methods ====
+  # ========================
+
+
+  def old_to_new_create(old_json)
+
+    offering_type_enum = {
+        'REG_D_506_B': 'MEMO_EQUITY_D506B',
+        'REG_D_506_C': 'MEMO_EQUITY_D506C'
+    }
+
+    new_json = {
+      data: {
+        attributes: {
+          title: 'aadddd',   #TODO: title?????
+          offeringType: offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
+          startDate: old_json['dateStart'],
+          endDate: old_json['dateEnd'],
+          minimumRaise: old_json['minRaise'].to_s,
+          maximumRaise: old_json['maxRaise'].to_s,
+          minimumInvestment: old_json['offerDetails'][0]['minInvestment'].to_s,
+          paymentMethod: 'ACH', # <hardcoded>
+          securityTypes: [{
+            type: '',
+          }],
+        },
+      type: 'offerings'
+    }
+    }
+
+    case old_json['offerDetails'][0]['instrumentType']
+      when 'SHARE_COMMON'
+        new_json[:data][:attributes][:securityTypes][0][:type] = 'COMMON_STOCK'
+        new_json[:data][:attributes][:securityTypes][0][:securityPrice] = old_json['offerDetails'][0]['price'].to_s
+        new_json[:data][:attributes][:securityTypes][0][:numSharesOffered] = old_json['totalShare'].to_i
+      else
+        raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType from capForge request offering/create!'
+    end
+
+    return new_json
 
   end
+
 
 end

@@ -1,13 +1,30 @@
 require 'json'
 require 'pp'
+require 'time'
 
 
-
+#ENUMS ARE NEW => OLD
 offering_type_enum = {
-    'REG_D_506_B' => 'MEMO_EQUITY_D506B',
-    'REG_D_506_C' => 'MEMO_EQUITY_D506C'
+  'REG_D_506_B': 'MEMO_EQUITY_D506B',
+  'REG_D_506_C': 'MEMO_EQUITY_D506C'
 }
 
+payment_type_enum = {
+    'ACH': 'ACH',
+    'WIRE': 'WIRE',
+    'IRA': 'IRA',
+    'CHECK': 'CHECK',
+    '1031_EXCHANGE': 'EXCHANGE_1031'
+}
+
+offering_status_enum = {
+  'TODO___TODO__TOD': 'OFFERING_ACTIVE',
+  'NOT YET DEFINED3': 'OFFERING_CLOSED',
+  'NOT YET DEFINED4': 'OFFERING_INACTIVE',
+  'NOT YET DEFINED5': 'OFFERING_INCOMPLETE',
+  'NOT YET DEFINED6': 'OFFERING_INPROGRESS',
+  'NOT YET DEFINED7': 'OFFERING_PENDING'
+}
 
 new_json = JSON['
   {
@@ -16,7 +33,7 @@ new_json = JSON['
     "created_by": "11111111-1111-1111-1111-111111111111",
     "updated_at": "2018-03-23T14:57:02.97934Z",
     "title": "title 11",
-    "offering_type": "REG_D_506_B",
+    "offering_type": "REG_D_506_C",
     "start_date": "2008-01-02T00:00:00Z",
     "end_date": "2008-01-03T00:00:00Z",
     "minimum_raise": "27.00",
@@ -25,9 +42,9 @@ new_json = JSON['
     "payment_method": "ACH",
     "class_title": "RCP debt loan terms (3 yr, 4 yr, 5 yr)",
     "security_types":  [{
-      "type": "DEBT",
+      "type": "COMMON_STOCK",
       "security_price": "1500653.29",
-      "num_notes_offered": 1010,
+      "num_shares_offered": 1010,
       "interest_rate": "0.059",
       "num_months_to_maturity": 73,
       "distribution_frequency": "MONTHLY"
@@ -120,101 +137,91 @@ new_json = JSON['
 
 # TODO: do something about nil -> null -- lex are expecting null but ruby uses nil
 # TODO: also true/false??
-old_json = JSON[
-    :data => {
-        :id => '',
-        :status => {
-            :code => '',
-            :updatedAt => 0,
-        },
-        :wfStatus => {
-            :code => '',
-            :updatedAt => 0,
-        },
-        :issuer => {
-            :id => '',
-            :country => {
-                :code => '',
-                :name => ''
-            },
-            :stateOfFormation => {
-                :code => '',
-                :name => '',
-            },
-            :state =>{
-                :code => '',
-                :name => '',
-            },
-            :entityType => {
-                :code => '',
-                :name => '',
-                :updatedAt => 0,
-            },
-            :busName => '',
-            :busLogo => '',
-            :founderTitle => '',
-            :founderName => '',
-            :email => '',
-            :ssn => nil,
-            :ein => '',
-            :address => '',
-            :address2 => nil,
-            :city => '',
-            :zip => '',
-            :accountingFirm => '',
-            :dateOfFormation => 0
-        },
-        :minRaise => 0,
-        :maxRaise => 0,
-        :totalShare => 0,
-        :dateStart => 0,
-        :dateEnd => 0,
-        :paymentOptions => [
-            {
-                :code => '',
-                :name => '',
-                :updatedAt => 0
-            }],
-        :offerDetails => [
-            {
-                :id => '',
-                :offering => '',
-                :instrumentType => {
-                    :code => '',
-                    :updatedAt => 0,
-                },
-                :regulationType => {
-                    :code => '',
-                    :active => false,
-                    :offerDetailType => {
-                        :code => '',
-                        :active => true,
-                        :updatedAt => 0,
-                    },
-                },
-            }],
+old_json = {
+  data: {
+    id: new_json['id'],
+    status: {
+      code: offering_status_enum[new_json['TODO___TODO__TODO']],
+      updatedAt: 0,
     },
-    "status":200,
-    "code":nil,
-
-]
-
+    wfStatus: {
+      code: offering_status_enum[new_json['TODO___TODO__TODO']],
+      updatedAt: 0,
+    },
+    issuer: {
+      id: '',
+      country: {
+        code: 'US', # <hardcoded> probably wont have this in new
+        name: 'United States' # <hardcoded> probably wont have this in new
+      },
+      stateOfFormation: {
+        code: '', # -- use metadata?
+        name: '', # -- use metadata?
+      },
+      state:{
+        code: '',
+        name: '',
+      },
+      entityType: {
+        code: '',
+        name: '',
+        updatedAt: 0, #
+      },
+      busName: '',
+      busLogo: '',
+      founderTitle: '',
+      founderName: '',
+      email: '',
+      ssn: nil,
+      ein: '',
+      address: '',
+      address2: nil,
+      city: '',
+      zip: '',
+      accountingFirm: '',
+      dateOfFormation: 0
+    },
+    minRaise: new_json['minimum_raise'].to_f,
+    maxRaise: new_json['maximum_raise'].to_f,
+    totalShare: new_json['security_types'][0]['num_notes_offered'],
+    dateStart: Time.parse(new_json['start_date']).to_i * 1000,
+    dateEnd: Time.parse(new_json['start_date']).to_i * 1000,
+    paymentOptions: [
+      {
+        code: payment_type_enum[new_json['payment_method']],
+        name: payment_type_enum[new_json['payment_method']], #always the same as the code?
+        updatedAt: 0
+      }],
+    offerDetails: [
+      {
+        id: '',
+        offering: new_json['id'],
+        instrumentType: {
+          code: '',
+          updatedAt: 0,
+        },
+        regulationType: {
+          code: offering_type_enum[new_json['offering_type']],
+          active: false,
+          offerDetailType: {
+            code: '',
+            active: true,
+            updatedAt: 0,
+          },
+        },
+      }],
+  },
+  "status": 000, # TODO: this is a dummy value, they will need to change how they check for errors!
+  "code":nil,
+}
 
 
 case new_json['security_types'][0]['type']
-  when 'DEBT'
-
-    # TODO: insert stuff for equity into json
-
-    # new_json[:attributes][:securityTypes][:type] = 'INTERESTS' # TODO: pretty sure this is correct Equity = Interests???
-    # new_json[:attributes][:securityTypes][:securityPrice] = ''
-    # new_json[:attributes][:securityTypes][:numUnitsOffered] = old_json['totalShare']  # TODO: expecting number!, not sure if correct
-    # new_json[:attributes][:securityTypes][:preferredReturn] = ''
-    # new_json[:attributes][:securityTypes][:distributionFrequency] = ''
-
-
-  else
-    raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType FROM capForge request!'
+  when 'COMMON_STOCK'
+  old_json[:data][:offerDetails][0][:instrumentType][:code] = 'SHARE_COMMON'
+  old_json[:data][:offerDetails][0][:regulationType][:offerDetailType][:code] = 'EQUITY'
+else
+  raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType FROM capForge request!'
 end
 
-pp new_json
+pp old_json

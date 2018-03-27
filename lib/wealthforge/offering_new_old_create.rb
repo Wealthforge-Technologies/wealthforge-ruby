@@ -34,39 +34,32 @@ old_json = JSON['{
 
 
 new_json = {
-    :attributes => {
-        :title => 'aadddd',
-        :offeringType => offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
-        :startDate => old_json['dateStart'],
-        :endDate => old_json['dateEnd'],
-        :minimumRaise => old_json['minRaise'],
-        :maximumRaise => old_json['maxRaise'],
-        :minimumInvestment => old_json['minInvestment'],
-        :paymentMethod => '', # not sure if this is even in the old!
-        :classTitle => '',    # not sure if this is even in the old!
-        :securityTypes => {
-            :type => '',
-        },
-        :type => 'offerings'
-    }
+  :attributes => {
+    :title => 'aadddd',
+    :offeringType => offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
+    :startDate => old_json['dateStart'],
+    :endDate => old_json['dateEnd'],
+    :minimumRaise => old_json['minRaise'],
+    :maximumRaise => old_json['maxRaise'],
+    :minimumInvestment => old_json['minInvestment'],
+    :paymentMethod => 'ACH', #<hardcoded>
+    :classTitle => '',    # not sure if this is even in the old!
+    :securityTypes => {
+      :type => '',
+    },
+    :type => 'offerings'
+  }
 }
 
 
 
-
-case old_json['offerDetails'][0]['offerDetailType']
-  when 'EQUITY'
-    # TODO: insert stuff for equity into json
-
-    # new_json[:attributes][:securityTypes][:type] = 'INTERESTS' # TODO: pretty sure this is correct Equity = Interests???
-    # new_json[:attributes][:securityTypes][:securityPrice] = ''
-    # new_json[:attributes][:securityTypes][:numUnitsOffered] = old_json['totalShare']  # TODO: expecting number!, not sure if correct
-    # new_json[:attributes][:securityTypes][:preferredReturn] = ''
-    # new_json[:attributes][:securityTypes][:distributionFrequency] = ''
-
-
-  else
-    raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType FROM capForge request!'
+case old_json['offerDetails'][0]['instrumentType']
+when 'SHARE_COMMON'
+  new_json[:attributes][:securityTypes][:type] = 'COMMON_STOCK' #
+  new_json[:attributes][:securityTypes][:securityPrice] = old_json['offerDetails'][0]['price']
+  new_json[:attributes][:securityTypes][:numSharesOffered] = old_json['totalShare'].to_i
+else
+  raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType from capForge request offering/create!'
 end
 
 pp new_json
