@@ -97,6 +97,7 @@ class WealthForge::Connection
 
     # check if token has expired, if so then get the token again and try again
     if response.status == 401
+      p '----------- 401 error in get!!!!!!!!!!!'
 
       retrieve_authorization
 
@@ -153,7 +154,7 @@ class WealthForge::Connection
 
   def self.connection
     if @wf_token.nil?
-    @wf_token = 'dummy token'
+    @wf_token = 'Bearer dummy token'
     end
 
     return Faraday.new(:url => api_endpoint) do |faraday|
@@ -162,7 +163,6 @@ class WealthForge::Connection
       faraday.adapter Faraday.default_adapter
       faraday.use Faraday::Response::RaiseError
       faraday.use CustomErrors
-
     end
 
   end
@@ -221,12 +221,14 @@ class CustomErrors < Faraday::Response::RaiseError
     case env[:status]
     when 400
       raise "400 (Bad Request) Response: \n #{JSON.parse(env['body'])}"
+    when 401
+      p "401 (Bad Request) }"
     when 422
       raise "422 (Unprocessable Entity) Response: \n #{JSON.parse(env['body'])}"
     when 500
       raise "500 (Internal Server Error) Response: \n #{JSON.parse(env['body'])}"
     when 400...600
-      p "Response Body: \n#{JSON.parse(env['body'])}"
+      p "Response Body: #{env['body']}"
       super
     else
       super

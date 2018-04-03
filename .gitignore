@@ -9,3 +9,10 @@
 /tmp/
 env
 /configs/config.json
+wealthforge-ruby-1.1.1.gem
+.idea/.rakeTasks
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/wealthforge-ruby.iml
+.idea/workspace.xml

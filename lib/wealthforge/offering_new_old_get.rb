@@ -142,11 +142,11 @@ old_json = {
     id: new_json['id'],
     status: {
       code: offering_status_enum[new_json['TODO___TODO__TODO']],
-      updatedAt: 0,
+      updatedAt: 0,# TODO:
     },
     wfStatus: {
       code: offering_status_enum[new_json['TODO___TODO__TODO']],
-      updatedAt: 0,
+      updatedAt: 0,# TODO:
     },
     issuer: {
       id: '',
@@ -194,19 +194,19 @@ old_json = {
       }],
     offerDetails: [
       {
-        id: '',
+        id: '',# TODO:
         offering: new_json['id'],
         instrumentType: {
-          code: '',
-          updatedAt: 0,
+          code: '', #provided below
+          updatedAt: 0,# TODO:
         },
         regulationType: {
           code: offering_type_enum[new_json['offering_type']],
-          active: false,
+          active: false,# TODO:
           offerDetailType: {
-            code: '',
-            active: true,
-            updatedAt: 0,
+            code: '', #provided below
+            active: true, # TODO:
+            updatedAt: 0,# TODO:
           },
         },
       }],

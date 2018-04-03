@@ -13,7 +13,7 @@ describe WealthForge::Offering do
     end
 
 
-    it "create offering" do
+    it "create OLD offering" do
 
       old_json = JSON['{
         "issuer":"857355020872",
@@ -39,24 +39,46 @@ describe WealthForge::Offering do
         "dateEnd":"2020-05-06"
       }']
 
-      params = old_to_new_create(old_json)
 
 
       # VCR.use_cassette 'create_offering', record: :none do
-      response = WealthForge::Offering.create params
-      pp JSON.parse response.env.body
+      response = WealthForge::Offering.create old_json
+      # pp JSON.parse response.env.body
       expect(response.status).not_to be_between(400, 600)
       # end
     end
 
-    # TODO: list of offerings
-    # it "get list of offerings" do
-    #   VCR.use_cassette 'list_offerings', record: :none do
-    #     response = WealthForge::Offering.all
-    #     puts response.inspect
-    #     expect(response[:errors].length).to eq 0
-    #   end
-    # end
+
+
+    it "create NEW offering" do
+
+      new_json = {
+        data: {
+          attributes: {
+            title: 'new offering from middleware',
+            offeringType: 'REG_D_506_C',
+            startDate: '2019-03-05',
+            endDate: '2020-03-05',
+            minimumRaise: '1900000',
+            maximumRaise: '2000000',
+            minimumInvestment: '50000',
+            paymentMethod: 'ACH',
+            securityTypes: [{
+              type: 'COMMON_STOCK',
+              securityPrice: '23.33',
+              numSharesOffered: 10_000,
+            }]
+          },
+          type: 'offerings'
+        }
+      }
+
+      # VCR.use_cassette 'create_offering', record: :none do
+      response = WealthForge::Offering.create new_json
+      # pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
+      # end
+    end
 
 
     it "get offering" do
@@ -69,52 +91,21 @@ describe WealthForge::Offering do
       # end
     end
 
-  end
 
 
-  # ========================
-  # ==== helper methods ====
-  # ========================
 
 
-  def old_to_new_create(old_json)
+    # TODO: list of offerings
+    # it "get list of offerings" do
+    #   VCR.use_cassette 'list_offerings', record: :none do
+    #     response = WealthForge::Offering.all
+    #     puts response.inspect
+    #     expect(response[:errors].length).to eq 0
+    #   end
+    # end
 
-    offering_type_enum = {
-        'REG_D_506_B': 'MEMO_EQUITY_D506B',
-        'REG_D_506_C': 'MEMO_EQUITY_D506C'
-    }
 
-    new_json = {
-      data: {
-        attributes: {
-          title: 'aadddd',   #TODO: title?????
-          offeringType: offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
-          startDate: old_json['dateStart'],
-          endDate: old_json['dateEnd'],
-          minimumRaise: old_json['minRaise'].to_s,
-          maximumRaise: old_json['maxRaise'].to_s,
-          minimumInvestment: old_json['offerDetails'][0]['minInvestment'].to_s,
-          paymentMethod: 'ACH', # <hardcoded>
-          securityTypes: [{
-            type: '',
-          }],
-        },
-      type: 'offerings'
-    }
-    }
 
-    case old_json['offerDetails'][0]['instrumentType']
-      when 'SHARE_COMMON'
-        new_json[:data][:attributes][:securityTypes][0][:type] = 'COMMON_STOCK'
-        new_json[:data][:attributes][:securityTypes][0][:securityPrice] = old_json['offerDetails'][0]['price'].to_s
-        new_json[:data][:attributes][:securityTypes][0][:numSharesOffered] = old_json['totalShare'].to_i
-      else
-        raise '__PARSING ERROR__  INVALID / UNMAPPED offerDetailType from capForge request offering/create!'
-    end
-
-    return new_json
 
   end
-
-
 end
