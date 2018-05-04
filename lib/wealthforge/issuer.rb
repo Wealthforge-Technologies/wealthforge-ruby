@@ -1,35 +1,60 @@
+require_relative './enums'
+require 'json'
+require 'pp'
+
 
 class WealthForge::Issuer
 
-  def self.all
-    WealthForge::Connection.get "issuer", nil
-  end
-
   def self.create(params = {})
-    params[:country] = {code: params[:country]}
-    params[:state_of_formation] = {code: params[:state_of_formation]}
-    params[:entity_type] = {code: params[:entity_type]}
-    WealthForge::Connection.post "issuer", params
+    newjson = old_to_new_create_issuer(params)
+    WealthForge::Connection.post "organizations", newjson
   end
 
-  def self.get(issuer_id)
-    WealthForge::Connection.get "issuer/#{issuer_id}", nil
-  end
+end
 
-  def self.update(params = {}, issuer_id)
-    WealthForge::Connection.post "issuer/#{issuer_id}", params
-  end
 
-  def self.accounts(issuer_id)
-    WealthForge::Connection.get "issuer/#{issuer_id}/accounts", nil
-  end
 
-  def self.create_account(params = {}, issuer_id)
-    WealthForge::Connection.post "issuer/#{issuer_id}/accounts", params
-  end
 
-  def self.update_account(params, issuer_id, account_id)
-    WealthForge::Connection.put "issuer/#{issuer_id}/accounts/#{account_id}", params
-  end
+private
+def old_to_new_create_issuer(old_json)
+
+
+  new_json = {
+    data: {
+      attributes: {
+        title: old_json['bus_name'],
+        orgType: 'ISSUER',
+        phone: old_json['phone'],
+        legalName: old_json['bus_name'], # NOTE: same as title
+        entityType: Enums::entity_type_enum[old_json['entity_type']],
+        stateOfIncorporation: old_json['state_of_formation'],
+        pointOfContactName: old_json['founder_name'],
+        pointOfContactTitle: old_json['founder_title'],
+        pointOfContactEmail: '',          # todo: hardcode
+        bank: 'lexshares_bank',             # todo: hardcode???? -- will be an ID --
+        ein: old_json['ein'],
+        address: {
+          street1: old_json['address'],
+          street2: '', # there is no address2 in capforge
+          city: old_json['city'],
+          stateProv: old_json['state'],
+          postalCode: old_json['zip'],
+          country: 'USA'
+        },
+        theme: {
+          logo: old_json['bus_logo'], # lexshares won't be using these theme values anyway vvv
+          mobilelogo: old_json['bus_logo'],
+          linkBack: 'lexshares.com',
+          linkBackDisplayText: 'go back to lexshares',
+          primary: '000000',
+          secondary: '000000',
+          accent: '000000',
+          docusignBrandID: '11111111-1111-1111-1111-111111111111'
+        }
+      },
+      type: 'organization'
+    }
+  }
+
 
 end

@@ -42,8 +42,7 @@ class WealthForge::Connection
         raise WealthForge::ApiException.new(e)
       end
     end
-
-  return response
+    return response
 
   end
 

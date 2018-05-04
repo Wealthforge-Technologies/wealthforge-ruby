@@ -12,7 +12,7 @@ describe WealthForge::Investment do
       end
     end
 
-    #
+
     # it "get all investments" do
     #   # VCR.use_cassette 'get_investments', record: :none do
     #     response = WealthForge::Investment.all
@@ -40,7 +40,7 @@ describe WealthForge::Investment do
       expect(response.status).not_to be_between(400, 600)
     end
 
-  #
+
    #  it "get investment by id" do
    #    VCR.use_cassette 'get_investment_by_id', record: :none do
    #    	response = WealthForge::Investment.get @investment_id

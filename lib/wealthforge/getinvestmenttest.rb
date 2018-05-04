@@ -3,6 +3,7 @@ require './enums'
 require 'pp'
 
 
+# TODO: 'investor' will be a stash ID that has that info
 
 old_json = JSON['{
   "investor": "524fcabb-a122-428f-bc20-1247cf87c1b3",
@@ -22,7 +23,7 @@ new_json = {
             investor: old_json['investor'],   # TODO-rename
             investmentAmount: old_json['amount'], # use amount instead of investAmount because if the price != 1 then investAmount will change TODO-rename
             paymentMethod: old_json['paymentType'], # TODO-rename
-            TODOstatus: ''Enums::investment_status_enum[''] # note: we do not change the status in capforge!
+            TODOstatus: Enums::investment_status_enum[''] # note: we do not change the status in capforge!
         },
         type: 'subscriptions'
     }

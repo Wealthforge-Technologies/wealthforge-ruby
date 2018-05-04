@@ -1,5 +1,5 @@
 require 'json'
-require './enums'
+require_relative './enums'
 
 class WealthForge::Offering
 
@@ -14,8 +14,10 @@ class WealthForge::Offering
 
     # if it does not start with data and has previouslyRaised then it is a lexShares request
     if params['data'].nil? && !params['previouslyRaised'].nil?
-      WealthForge::Connection.post "offerings", old_to_new_create(params)
+      WealthForge::Connection.post "offerings", old_to_new_create_offering(params)
     else
+
+      pp params
       WealthForge::Connection.post "offerings", params
     end
   end
@@ -38,11 +40,12 @@ end
 
 
 private
-def old_to_new_create(old_json)
+def old_to_new_create_offering(old_json)
 
   new_json = {
       data: {
           attributes: {
+
               title: 'old to new offering from middleware',   #TODO: title?????
               offeringType: Enums::offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
               startDate: old_json['dateStart'],
@@ -50,7 +53,7 @@ def old_to_new_create(old_json)
               minimumRaise: old_json['minRaise'].to_s,
               maximumRaise: old_json['maxRaise'].to_s,
               minimumInvestment: old_json['offerDetails'][0]['minInvestment'].to_s,
-              paymentMethod: 'ACH', # <hardcoded> TODO: capforge says they use ACH, WIRE, IRE here!
+              paymentMethods: ['ACH'], # <hardcoded> TODO: capforge says they use ACH, WIRE, IRE here!
               securityTypes: [{
                   type: '',
               }],

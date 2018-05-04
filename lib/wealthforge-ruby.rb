@@ -6,7 +6,7 @@ require "wealthforge/investment"
 require "wealthforge/investor"
 require "wealthforge/issuer"
 require "wealthforge/offering"
-require "wealthforge/subscription2"
+require "wealthforge/stash"
 
 module WealthForge
 
