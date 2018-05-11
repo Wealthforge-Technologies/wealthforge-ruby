@@ -81,8 +81,8 @@ describe WealthForge::Offering do
       expect(response.status).not_to be_between(400, 600)
       # end
     end
-    #
-    #
+
+
     # it "get offering" do
     #   # VCR.use_cassette 'get_offering_by_id', record: :none do
     #   response = WealthForge::Offering.get 'cf99116c-1209-47a7-a52a-46332ed7245f'
@@ -92,19 +92,8 @@ describe WealthForge::Offering do
     #   # expect(response[:errors].length).to eq 0
     #   # end
     # end
-    #
-    #
 
 
-
-    # TODO: list of offerings
-    # it "get list of offerings" do
-    #   VCR.use_cassette 'list_offerings', record: :none do
-    #     response = WealthForge::Offering.all
-    #     puts response.inspect
-    #     expect(response[:errors].length).to eq 0
-    #   end
-    # end
 
 
 

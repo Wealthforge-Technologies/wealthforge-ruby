@@ -48,45 +48,19 @@ describe WealthForge::Stash do
       expect(response.status).not_to be_between(400, 600)
     end
 
-    #
-    # it "update created stash" do
-    #
-    #   new_stash_json = {
-    #     data: {
-    #       attributes: {
-    #         data: {
-    #             data1: 'data1 value-edited',
-    #             data3: 'data3 value',
-    #             inv: {
-    #                 midname: 'midmidmid',
-    #
-    #             }
-    #         }
-    #       },
-    #       type: 'stashes'
-    #     }
-    #   }
-    #
-    #
-    #
-    #   response = WealthForge::Stash.update @stash_id, new_stash_json
-    #   pp JSON.parse response.env.body
-    #   expect(response.status).not_to be_between(400, 600)
-    # end
 
-
-
-
-    it "get stash and merge and put back" do
+    it "replace created stash" do
 
       new_stash_json = {
         data: {
           attributes: {
             data: {
               data1: 'data1 value-edited',
-              data3: 'data3 value',
+              data2: 'data2 value2',
               inv: {
-                midname: 'midmidmid',
+                fname: 'jkdasjdkas',
+                mname: 'bbbbb',
+                lname: 'jdsakdhjsahdjashdjas',
               }
             }
           },
@@ -94,15 +68,21 @@ describe WealthForge::Stash do
         }
       }
 
+
+
+      response = WealthForge::Stash.update @stash_id, new_stash_json
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
+    end
+
+
+    it "get updated stash" do
       response = WealthForge::Stash.get @stash_id
       pp JSON.parse response.env.body
-
-      new_stash_json.merge(JSON.parse(response.env.body))
-      pp new_stash_json
-
-
-
+      expect(response.status).not_to be_between(400, 600)
     end
+
+
 
 
   end

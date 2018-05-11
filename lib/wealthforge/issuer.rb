@@ -56,5 +56,4 @@ def old_to_new_create_issuer(old_json)
     }
   }
 
-
 end

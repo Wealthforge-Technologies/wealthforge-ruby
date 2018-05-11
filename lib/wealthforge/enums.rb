@@ -7,6 +7,7 @@ class Enums
     attr_accessor :investor_accreditation_enum
     attr_accessor :offering_type_enum
     attr_accessor :entity_type_enum
+    attr_accessor :payment_type_enum
   end
 
 
@@ -119,5 +120,16 @@ class Enums
   }
 
 
+
+
+
+  @payment_type_enum = {
+      # old: new
+      'ACH' => 'ACH',
+      'WIRE' => 'WIRE',
+      'IRA' => 'IRA',
+      'CHECK' => 'CHECK',
+      'EXCHANGE_1031' => '1031_EXCHANGE'
+  }
 
 end
