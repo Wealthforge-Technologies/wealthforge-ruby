@@ -7,6 +7,8 @@ old_json = JSON['{
   "investor": {
      "address":"24 Snoshu",
      "name":"Dino Simone",
+     "firstName":"Dino",
+     "lastName":"Simone",
      "state":"AK",
      "city":"Anchorage",
      "zip":"90001",
@@ -47,32 +49,26 @@ new_json = {
         attributes: {
             fundingMethods: [
                 {
-                    accountFirstName: old_json['investor']['firstName'], # Note: same as investor name
-                    accountLastName: old_json['investor']['lastName'],  # Note: same as investor name
-                    accountNumber: old_json['account']['number'], #TODO: get from different example, it is null
-                    accountType: "CHECKING", #TODO: api has a nacha object that has this info but idk where it is in the normal call
-                    bankName: "Crestar", #TODO: ?????? not in gen1
-                    investmentAmount: old_json['amount'], # use amount instead of investAmount because if the price != 1 then investAmount will change
-                    paymentType: Enums::payment_type_enum(old_json['paymentType']),
-                    routingNumber: old_json['account']['routing']
+                    # defined below
                 }
             ],
             investors: [
                 {
-                    accreditationType: '', # defined below
+                    accreditationType: '', #TODO
                     address: {
                         city: old_json['investor']['city'],
-                        country: "USA", # hardcoded
                         postalCode: old_json['investor']['zip'],
                         stateProv: old_json['investor']['state'],
                         street1: old_json['investor']['address'],
-                        street2: '' # not in gen1
+                        street2: old_json['investor']['address2']
                     },
                     investorType: old_json['investor']['investorType'],
                     primaryPhone: old_json['investor']['phone'],
                     ssn: old_json['investor']['taxId'] # this is ein or ssn depending on investor type
                 }
             ],
+            investmentAmount: old_json['amount'], # use amount instead of investAmount because if the price != 1 then investAmount will change
+
         },
         type: "subscription"
     }
@@ -80,45 +76,41 @@ new_json = {
 
 
 
-if old_json['data']['investor']['investorType'] == 'ENTITY'
-  #todo entity stuff
+#  ====== load different investor types ======
+#
+if old_json['investor']['investorType'] == 'ENTITY'
+  #todo entity stuff --- NEED EXAMPLE!!!!!
   new_json['data']['attributes']['investors'][0]['entityType'] = old_json['data']['investor']['entityType'] #todo - not sure of this is correct for old json
+  new_json['data']['attributes']['investors'][0]['name'] = old_json['investor']['name']
 
+  new_json['data']['attributes']['fundingMethods'][0]['accountBusinessName'] = old_json['investor']['name'] # Note: same as investor name
 
 elsif old_json['data']['investor']['investorType'] == 'INDIVIDUAL'
   #todo move individual stuff here
   #
   new_json['data']['attributes']['investors'][0]['dateOfBirth'] = old_json['investor']['dob'],
-      new_json['data']['attributes']['investors'][0]['firstName'] = old_json['investor']['firstName']
+      new_json['data']['attributes']['investors'][0]['firstName'] = old_json['investor']['firstName'] # Note: Dino says he will send the first and last separately because gen1 had them together in 'name'
   new_json['data']['attributes']['investors'][0]['lastName'] = old_json['investor']['lastName']
+  # new_json['data']['attributes']['investors'][0]['signatory']['title'] = old_json['investor'] #TODO: not in old flow -- default or is it not required
+  new_json['data']['attributes']['investors'][0]['signatory']['address']['city'] = old_json['investor']['city']
+  new_json['data']['attributes']['investors'][0]['signatory']['address']['street1'] = old_json['investor']['address']
+  new_json['data']['attributes']['investors'][0]['signatory']['address']['stateProv'] = old_json['investor']['state']
+  new_json['data']['attributes']['investors'][0]['signatory']['address']['postalCode'] = old_json['investor']['zip']
+  new_json['data']['attributes']['investors'][0]['signatory']['dateOfBirth'] = old_json['investor']['dob']
+  new_json['data']['attributes']['investors'][0]['signatory']['lastName'] = old_json['investor']['']
+  new_json['data']['attributes']['investors'][0]['signatory']['firstName'] = old_json['investor']['']
+  # new_json['data']['attributes']['investors'][0]['signatory']['signatoryAuthority'] = old_json['investor'][''] #TODO: is this in old flow?
+  # new_json['data']['attributes']['investors'][0]['signatory']['ssn'] = old_json['investor'][''] #TODO:
+  # new_json['data']['attributes']['investors'][0]['ein'] = old_json['investor'][''] #TODO:
+  new_json['data']['attributes']['fundingMethods'][0]['accountFirstName'] = old_json['investor']['name'] # Note: same as investor name
+  new_json['data']['attributes']['fundingMethods'][0]['accountLastName'] = old_json['investor']['name'] # Note: same as investor name
 
-  "isFINRA": true,
-  "signatory": {
-      "title": "CFO",
-      "address": {
-          "city": "Richmond",
-          "street1": "PO Box 249",
-          "street2": "Suite 200",
-          "stateProv": "VA",
-          "postalCode": "23226",
-          "country": "USA"
-      },
-      "dateOfBirth": "1970-02-28",
-      "lastName": "Beck",
-      "firstName": "Stacy",
-      "signatoryAuthority": true,
-      "ssn": "987654321"
-  },
-      "ein": "abcdefghi",
 
 end
 
 
-      pp new_json
-
-
-
-case old_json['data']['investor']['accreditation']['code']
+#  ====== load different accreditation types ======
+case old_json['investor']['accreditation']['code']
   when 'INCOME'
     if old_json['data']['investor']['investorType']['code'] == 'INDIVIDUAL'
       new_json['data']['attributes']['investors'][0]['accreditationType'] = 'INDIVIDUAL_INCOME'
@@ -129,6 +121,29 @@ case old_json['data']['investor']['accreditation']['code']
   else
     new_json['data']['attributes']['investors'][0]['accreditationType'] = Enums::investor_accreditation_enum.find{|key, hash| hash[0] == oldaccr}[0].to_s
 end
+
+
+#  ====== load different payment method types ======
+case old_json['paymentType']
+  when 'ACH'
+    new_json['data']['attributes']['fundingMethods']['accountNumber'] = old_json['account']['number'], #TODO: get from different example, it is null
+    new_json['data']['attributes']['fundingMethods']['accountType'] = "", #TODO: api has a nacha object that has this info but idk where it is in the normal call
+    new_json['data']['attributes']['fundingMethods']['bankName'] = "" #TODO: uncollected by lexshares
+    new_json['data']['attributes']['fundingMethods']['routingNumber'] = old_json['account']['routing']
+    new_json['data']['attributes']['fundingMethods']['paymentType'] = 'ACH'
+    # todo: AccountBusinessName / AccountFirstName / AccountLastName -- these are probably not collected by lexshares
+    # todo: address -- is this required?
+
+  when 'WIRE'
+    new_json['data']['attributes']['fundingMethods']['paymentType'] = 'WIRE'
+
+  else
+    # other payment types are not supported in either generation (no IRA in gen1, no check in gen4)
+    p '--- ERROR: unmapped or invalid payment type in subscription!!'
+end
+
+
+pp new_json
 
 # =======================================================================================================================================
 # =======================================================================================================================================

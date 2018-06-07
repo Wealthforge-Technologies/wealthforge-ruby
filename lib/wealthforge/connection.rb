@@ -4,7 +4,7 @@ require 'json'
 require 'csv'
 require 'timeout'
 require 'resolv-replace'
-
+require 'pp'
 
 class WealthForge::Connection
 
@@ -16,6 +16,8 @@ class WealthForge::Connection
 
 
   def self.post(endpoint, params)
+    p '================'
+
     begin
       response = connection.post do |req|
         req.url endpoint
@@ -23,9 +25,11 @@ class WealthForge::Connection
         req.body = prep_params(params)
       end
       JSON.parse(response.body, symbolize_names: true)
+      pp JSON.parse(response)
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
+    p '================'
 
     # check if token has expired, if so then get the token again and try again
     if response.status == 401

@@ -18,6 +18,7 @@ class WealthForge::Investment
 
 
   def self.create_subscription_agreement(investment_id, params)
+    # todo: obie says we will probably just ask for the file. check with dino if thats ok or if they need these fields
     mapped_params = {
         status: {code: 'FILE_INPROGRESS', active: true},
         mimeType: MIME::Types.type_for(params[:filename]).first.to_s,

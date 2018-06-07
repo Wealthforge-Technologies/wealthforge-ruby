@@ -23,14 +23,16 @@ def old_to_new_create_offering(old_json)
   new_json = {
     data: {
       attributes: {
-        title: 'old to new offering from middleware', #TODO: title????? -- sent from issuer as busName!!!! --
+        title: 'old to new offering from middleware', #TODO: title????? -- sent from issuer as busName!!!! -- save in stash??
+        issuerId: '123456789',
         offeringType: Enums::offering_type_enum.key(old_json['offerDetails'][0]['regulationType']),
         startDate: old_json['dateStart'],
         endDate: old_json['dateEnd'],
         minimumRaise: old_json['minRaise'].to_s,
         maximumRaise: old_json['maxRaise'].to_s,
         minimumInvestment: old_json['offerDetails'][0]['minInvestment'].to_s,
-        paymentMethods: ['ACH', 'WIRE', 'IRA'], # <hardcoded>
+        paymentMethods: ['ACH', 'WIRE'], # <hardcoded>
+        status: 'DRAFT', # can be one of DRAFT, PENDING_REVIEW, ACTIVE, PAUSED TODO: which one should be sent?
         securityTypes: [{
           type: '', # defined below
         }]
@@ -47,6 +49,7 @@ def old_to_new_create_offering(old_json)
     else
       raise '__PARSING ERROR__  INVALID or UNMAPPED offerDetailType from capForge request offering/create!'
   end
+  p new_json
 
   return new_json
 
