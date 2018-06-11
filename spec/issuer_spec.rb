@@ -6,7 +6,7 @@ describe WealthForge::Issuer do
 
     before do
       WealthForge.configure do |config|
-        config.environment = 'local'
+        config.environment = 'ci'
       end
     end
 

@@ -8,7 +8,7 @@ describe WealthForge::Offering do
     before do
       @offering_id = "3d609eb4-93aa-444c-be02-72ee5ec584ad"
       WealthForge.configure do |config|
-        config.environment = 'local'
+        config.environment = 'ci'
       end
     end
 

@@ -4,3 +4,8 @@ source 'https://rubygems.org'
 gemspec
 gem 'wealth_forge'
 gem 'faraday_middleware-oauth2_refresh'
+gem 'faraday'
+gem 'mime-types'
+gem 'factory-girl'
+gem 'VCR'
+gem 'webmock'

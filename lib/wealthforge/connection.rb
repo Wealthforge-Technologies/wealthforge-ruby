@@ -27,12 +27,15 @@ class WealthForge::Connection
       JSON.parse(response.body, symbolize_names: true)
       pp JSON.parse(response)
     rescue => e
-      raise WealthForge::ApiException.new(e)
+      p "8888888888888"
+
+      # raise WealthForge::ApiException.new(e)
     end
     p '================'
 
     # check if token has expired, if so then get the token again and try again
-    if response.status == 401
+    pp response
+    # if response.status == 401
       retrieve_authorization
 
       begin
@@ -45,7 +48,7 @@ class WealthForge::Connection
       rescue => e
         raise WealthForge::ApiException.new(e)
       end
-    end
+    # end
     return response
 
   end
@@ -179,17 +182,17 @@ class WealthForge::Connection
     end
 
     # get the cert and key if not retrieved from configs yet
-    if @wf_cert.nil? && @wf_key.nil?
-      self.retrieve_authorization
-    end
-
+    # if @wf_cert.nil? && @wf_key.nil?
+    #   self.retrieve_authorization
+    # end
+    p api_endpoint
     bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_cert}\",\"clientSecret\":\"#{@wf_key}\"},\"type\":\"tokens\"}}"
     cert = Faraday.new.post(api_endpoint + 'auth/tokens') do |faraday|
       faraday.body = bod
     end.body
 
     @wf_token = 'Bearer ' + JSON.parse(cert)['data']['attributes']['accessToken']
-
+    p @wf_token
   end
 
 
@@ -198,21 +201,18 @@ class WealthForge::Connection
     begin
       file = File.read('configs/config.json')
       config_data = JSON.parse(file)
-      file.close
-    rescue => err
-      p '__ERROR__ Please make a config file in configs/'
-      puts "Exception: #{err}"
-      err
+    rescue Errno::ENOENT => err
+      raise "__ERROR__ Please make a config file in configs/config.json    Exception: #{err.__id__}"
     end
 
+
     if config_data['wf_cert'].nil? || config_data['wf_key'].nil?
-      p '__ERROR__ Please config the key and cert in configs/config.json'
+      p '__ERROR__ Please verify the key and cert are in configs/config.json'
     else
       @wf_cert = config_data['wf_cert']
       @wf_key = config_data['wf_key']
     end
     @wf_token = retrieve_token
-
   end
 
 end
@@ -225,6 +225,7 @@ class CustomErrors < Faraday::Response::RaiseError
     when 400
       raise "400 (Bad Request) Response: \n #{JSON.parse(env['body'])}"
     when 401
+      # dont fail because it probably means the auth failed
       p "401 (Bad Request) }"
     when 422
       raise "422 (Unprocessable Entity) Response: \n #{JSON.parse(env['body'])}"

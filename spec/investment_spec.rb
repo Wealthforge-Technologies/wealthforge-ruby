@@ -128,19 +128,19 @@ describe WealthForge::Investment do
    #  end
   #
   #
-   #  it "create subscription agreement" do
-   #    params = {
-   #      file: open("#{Dir.pwd}/spec/files/test_file.pdf") {|f| f.read},
-	# filename: "new-file.pdf",
-   #      remote_investment: @investment_id,
-	# parent: "d8cd4024-46aa-4858-9ff1-b10961ec6186",
-  #
-   #    }
-   #    VCR.use_cassette 'create_subscription_agreement', record: :none do
-   #      response = WealthForge::Investment.create_subscription_agreement @investment_id, params
-	# expect(response[:data][:status][:code]).to eq "FILE_INPROGRESS"
-   #    end
-   #  end
+    it "create subscription agreement" do
+      params = {
+        file: open("#{Dir.pwd}/spec/files/test_file.pdf") {|f| f.read},
+	filename: "new-file.pdf",
+        remote_investment: @investment_id,
+	parent: "d8cd4024-46aa-4858-9ff1-b10961ec6186",
+
+      }
+      VCR.use_cassette 'create_subscription_agreement', record: :none do
+        response = WealthForge::Investment.create_subscription_agreement @investment_id, params
+	expect(response[:data][:status][:code]).to eq "FILE_INPROGRESS"
+      end
+    end
   #
   #
    #  it "gets certificate" do
