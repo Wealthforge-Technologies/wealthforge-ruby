@@ -30,29 +30,29 @@ def old_to_new_create_issuer(old_json)
         stateOfIncorporation: old_json['state_of_formation'],
         pointOfContactName: old_json['founder_name'],
         pointOfContactTitle: old_json['founder_title'],
-        pointOfContactEmail: '',          # todo: hardcode
-        bank: 'lexshares_bank',             # todo: hardcode???? -- will be an ID --
+        pointOfContactEmail: '',          # todo: hardcode -- what should it be?
+        bank: 'lexshares_bank',             # todo: hardcode???? -- will be an ID ???
         ein: old_json['ein'],
         address: {
           street1: old_json['address'],
-          street2: '', # there is no address2 in capforge
+          street2: old_json['address2'],
           city: old_json['city'],
           stateProv: old_json['state'],
           postalCode: old_json['zip'],
           country: 'USA'
         },
         theme: {
-          logo: old_json['bus_logo'], # lexshares won't be using these theme values anyway vvv
+          logo: old_json['bus_logo'], # lexshares won't be using these theme values anyway vvvvvv
           mobilelogo: old_json['bus_logo'],
           linkBack: 'lexshares.com',
           linkBackDisplayText: 'go back to lexshares',
           primary: '000000',
           secondary: '000000',
           accent: '000000',
-          docusignBrandID: '11111111-1111-1111-1111-111111111111'
+          docusignBrandID: '11111111-1111-1111-1111-111111111111' #todo: does this need to be changed???
         }
       },
-      type: 'organization'
+      type: 'organization',
     }
   }
 

@@ -35,9 +35,12 @@ describe WealthForge::Issuer do
 
 
       response = WealthForge::Issuer.create old_json
+      pp response.env.body
       expect(response.status).not_to be_between(400, 600)
 
       end
+
+
 
 
     # it "get issuer" do

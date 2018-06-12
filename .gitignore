@@ -16,3 +16,5 @@ wealthforge-ruby-1.1.1.gem
 .idea/vcs.xml
 .idea/wealthforge-ruby.iml
 .idea/workspace.xml
+/vendor/
+Project_Default.xml
