@@ -91,18 +91,29 @@ if old_json['investor']['investorType'] == 'ENTITY'
     new_json[:data][:attributes][:investors][0][:entityType] = old_json['investor']['entityType'] #todo - not sure of this is correct for old json
     new_json[:data][:attributes][:investors][0][:name] = old_json['investor']['name']
     new_json[:data][:attributes][:fundingMethods][0][:accountBusinessName] = old_json['account']['name'] # Note: same as investor name
-    
-    new_json['data']['attributes']['investors'][0]['signatory']['title'] = old_json['investor'] #TODO: not in old flow -- default or is it not required
-    new_json['data']['attributes']['investors'][0]['signatory']['title'] = old_json['investor'] #TODO: not in old flow -- default or is it not required
-    new_json['data']['attributes']['investors'][0]['signatory']['address']['city'] = old_json['investor']['city']
-    new_json['data']['attributes']['investors'][0]['signatory']['address']['street1'] = old_json['investor']['address']
-    new_json['data']['attributes']['investors'][0]['signatory']['address']['stateProv'] = old_json['investor']['state']
-    new_json['data']['attributes']['investors'][0]['signatory']['address']['postalCode'] = old_json['investor']['zip']
-    new_json['data']['attributes']['investors'][0]['signatory']['dateOfBirth'] = old_json['investor']['dob']
-    new_json['data']['attributes']['investors'][0]['signatory']['lastName'] = old_json['investor']['']
-    new_json['data']['attributes']['investors'][0]['signatory']['firstName'] = old_json['investor']['']
-    new_json['data']['attributes']['investors'][0]['signatory']['signatoryAuthority'] = old_json['investor'][''] #TODO: is this in old flow?
-    new_json['data']['attributes']['investors'][0]['signatory']['ssn'] = old_json['investor'][''] #TODO:
+    if old_json['investor']['signatory'] != nil
+        new_json[:data][:attributes][:investors][0][:signatory][:title] = old_json['investor']['signatory']['title'] #TODO: not in old flow -- default or is it not required
+        new_json[:data][:attributes][:investors][0][:signatory][:address][:city] = old_json['investor']['signatory']['city']
+        new_json[:data][:attributes][:investors][0][:signatory][:address][:street1] = old_json['investor']['signatory']['address']
+        new_json[:data][:attributes][:investors][0][:signatory][:address][:stateProv] = old_json['investor']['signatory']['state']
+        new_json[:data][:attributes][:investors][0][:signatory][:address][:postalCode] = old_json['investor']['signatory']['zip']
+        new_json[:data][:attributes][:investors][0][:signatory][:dateOfBirth] = old_json['investor']['signatory']['dob']
+        new_json[:data][:attributes][:investors][0][:signatory][:lastName] = old_json['investor']['signatory']['lastName']
+        new_json[:data][:attributes][:investors][0][:signatory][:firstName] = old_json['investor']['signatory']['firstName']
+        new_json[:data][:attributes][:investors][0][:signatory][:signatoryAuthority] = old_json['investor']['signatory']['signatoryAuthority'] #TODO: is this in old flow?
+        new_json[:data][:attributes][:investors][0][:signatory][:ssn] = old_json['investor']['signatory']['taxId'] #TODO:
+    else
+        # new_json['data']['attributes']['investors'][0]['signatory']['title'] = old_json['investor'] #TODO: not in old flow -- default or is it not required
+        # new_json['data']['attributes']['investors'][0]['signatory']['address']['city'] = old_json['investor']['city']
+        # new_json['data']['attributes']['investors'][0]['signatory']['address']['street1'] = old_json['investor']['address']
+        # new_json['data']['attributes']['investors'][0]['signatory']['address']['stateProv'] = old_json['investor']['state']
+        # new_json['data']['attributes']['investors'][0]['signatory']['address']['postalCode'] = old_json['investor']['zip']
+        # new_json['data']['attributes']['investors'][0]['signatory']['dateOfBirth'] = old_json['investor']['dob']
+        # new_json['data']['attributes']['investors'][0]['signatory']['lastName'] = old_json['investor']['']
+        # new_json['data']['attributes']['investors'][0]['signatory']['firstName'] = old_json['investor']['']
+        # new_json['data']['attributes']['investors'][0]['signatory']['signatoryAuthority'] = old_json['investor'][''] #TODO: is this in old flow?
+        # new_json['data']['attributes']['investors'][0]['signatory']['ssn'] = old_json['investor'][''] #TODO:
+    end
 elsif old_json['investor']['investorType'] == 'INDIVIDUAL'
    #todo move individual stuff here
     new_json[:data][:attributes][:investors][0][:dateOfBirth] = old_json['investor']['dob']
@@ -120,9 +131,16 @@ new_json[:data][:attributes][:investors][0][:address][:country] = 'USA'
 
 # #  ====== load different payment method types ======
 case old_json['paymentType']
-  when 'ACH'
+when 'ACH'
     new_json[:data][:attributes][:fundingMethods][0][:accountNumber] = old_json['account']['number'] #TODO: get from different example, it is null
-    new_json[:data][:attributes][:fundingMethods][0][:accountType] = 'Checking' #TODO: api has a nacha object that has this info but idk where it is in the normal call
+
+    #fill with default value if not given
+    if old_json['account']['bankAccountType'] != nil
+        new_json[:data][:attributes][:fundingMethods][0][:accountType] = old_json['account']['bankAccountType']
+    else
+        new_json[:data][:attributes][:fundingMethods][0][:accountType] = 'Checking' #TODO: api has a nacha object that has this info but idk where it is in the normal call
+    end
+    
     new_json[:data][:attributes][:fundingMethods][0][:bankName] = old_json['account']['bankName'] #TODO: uncollected by lexshares
     new_json[:data][:attributes][:fundingMethods][0][:routingNumber] = old_json['account']['routing']
     new_json[:data][:attributes][:fundingMethods][0][:accountBusinessName] = old_json['account']['accountBusinessName']
@@ -138,12 +156,13 @@ case old_json['paymentType']
         new_json[:data][:attributes][:fundingMethods][0][:address][:country] = 'USA'
     end 
 
-  when 'WIRE'
-    # do nothing
-  else
-    # other payment types are not supported in either generation (no IRA in gen1, no check in gen4)
-    #p '--- ERROR: unmapped or invalid payment type in subscription!!'
+when 'WIRE'
+  # do nothing
+else
+  # other payment types are not supported in either generation (no IRA in gen1, no check in gen4)
+  #p '--- ERROR: unmapped or invalid payment type in subscription!!'
 end
+
 
 
 pp new_json

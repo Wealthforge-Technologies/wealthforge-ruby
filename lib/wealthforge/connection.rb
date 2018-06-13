@@ -105,13 +105,30 @@ class WealthForge::Connection
 
   end
 
+  def self.tokens_endpoint
+    tokens_endpoint = ''
+
+    unless WealthForge.configuration.environment.nil?
+      case WealthForge.configuration.environment
+        when 'stage'
+          tokens_endpoint = '__TODO__' #TODO
+        when 'prod'
+          tokens_endpoint = '__TODO__' #TODO
+        else
+          tokens_endpoint = "https://api.wealthforge.org/#{WealthForge.configuration.version}/"
+      end
+    end
+    return api_endpoint
+
+  end
+
 
   def self.connection
     if @wf_token.nil?
     @wf_token = 'Bearer dummy token'
     end
 
-    return Faraday.new(:url => api_endpoint) do |faraday|
+    return Faraday.new(:url => tokens_endpoint) do |faraday|
       faraday.request :url_encoded
       faraday.headers['authorization'] = @wf_token
       faraday.adapter Faraday.default_adapter
