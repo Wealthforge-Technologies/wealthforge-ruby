@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'json'
 
 describe WealthForge::Issuer do
 
@@ -36,7 +37,8 @@ describe WealthForge::Issuer do
 
       response = WealthForge::Issuer.create old_json
       expect(response.status).not_to be_between(400, 600)
-
+      rj = JSON.parse(response.env.body)
+      pp rj
       end
 
 

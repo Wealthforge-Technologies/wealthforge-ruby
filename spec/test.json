@@ -1,0 +1,75 @@
+{
+    "investor": {
+        "address": "24 Snoshu",
+        "name": "Dino Simone",
+        "firstName": "Dino",
+        "lastName": "Simone",
+        "state": "AK",
+        "city": "Anchorage",
+        "zip": "90001",
+        "email": "dino.simone+alaska@lexshares.com",
+        "investorType": "INDIVIDUAL",
+        "investorSubType": null,
+        "accreditation": "INCOME",
+        "accredited": true,
+        "phone": "123-123-1212",
+        "investmentTimeline": null,
+        "dob": "1980-01-01",
+        "taxId": "000-00-0000",
+        "investmentRisk": null,
+        "status": "INVESTOR_ACTIVE",
+        "logo": "http://none",
+        "investorUrl": "http://none",
+        "purchaseRepExists": false
+    },
+    "account": {
+        "nacha": "WEB",
+        "name": "Kelly Tester07",
+        "routing": "123456789",
+        "number": "12431424"
+    },
+    "investAmount": 75000,
+    "amount": 75000,
+    "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+    "status": "INVESTMENT_PENDING",
+    "paymentType": "WIRE"
+}
+{
+    :data=>
+  {
+        :attributes=>
+    {
+            :investors=>
+      [
+                {
+                    :accreditationType=>"INCOME",
+                    :address=>
+         {
+                        :city=>"Anchorage",
+                        :postalCode=>"90001",
+                        :stateProv=>"AK",
+                        :street1=>"24 Snoshu",
+                        :street2=>nil
+                    },
+                    :investorType=>"INDIVIDUAL",
+                    :primaryPhone=>"123-123-1212",
+                    :ssn=>"000-00-0000",
+                    :dateOfBirth=>"1980-01-01",
+                    :fistName=>"Dino",
+                    :lastName=>"Simone",
+                    :ein=>"000-00-0000"
+                },
+                {
+                    :fundingMethods=>[
+                        {
+                            :paymentType=>"WIRE",
+                            :investmentAmount=>75000
+                        }
+                    ]
+                }
+            ],
+            :investmentAmount=>75000
+        },
+        :type=>"subscription"
+    }
+}
