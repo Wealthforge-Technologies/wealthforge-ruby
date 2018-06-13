@@ -13,25 +13,23 @@ describe WealthForge::Issuer do
 
     it "create issuer" do
 
-
-      #NOTE: from sample api calls, not from lexshares TODO: see what they use
       old_json = JSON['{
         "address": "124 Investor Way",
         "city": "Boston",
-        "state": "MA",
+        "state": { "code": "VA" },
         "zip": "02139",
-        "country": "US",
-        "bus_name": "LexShares",
-        "accounting_firm": "Accountants, LLC",
-        "founder_name": "James Smith",
-        "state_of_formation": "MA",
-        "entity_type": "ENTITY_TYPE_LLC",
-        "founder_title": "CEO",
-        "date_of_formation": "2001-11-01",
+        "country": { "code": "US" },
+        "busName": "LexShares",
+        "accountingFirm": "Accountants, LLC",
+        "founderName": "James Smith",
+        "stateOfFormation": { "code": "MD" },
+        "entityType":  { "code": "ENTITY_TYPE_LLC"},
+        "founderTitle": "CEO",
+        "dateOfFormation": "2001-11-01",
         "ein": "999999999",
         "email": "wealthforge_api_test@mailinator.com",
         "phone": "2125551234",
-        "bus_logo": "http://unews.utah.edu/wp-content/uploads/Cash.jpg"
+        "busLogo": "http://unews.utah.edu/wp-content/uploads/Cash.jpg"
       }']
 
 

@@ -124,18 +124,15 @@ class WealthForge::Connection
 
   def self.retrieve_token
 
-    # no creds on local
     if WealthForge.configuration.environment == 'local'
-      return ''
+      # local creds are retrieved from ci
+      auth_url =  "https://ci.wealthforge.org/wfh-api/#{WealthForge.configuration.version}/"
+    else
+      auth_url = api_endpoint
     end
 
-    # get the cert and key if not retrieved from configs yet
-    # if @wf_cert.nil? && @wf_key.nil?
-    #   self.retrieve_authorization
-    # end
-
     bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_cert}\",\"clientSecret\":\"#{@wf_key}\"},\"type\":\"tokens\"}}"
-    cert = Faraday.new.post(api_endpoint + 'auth/tokens') do |faraday|
+    cert = Faraday.new.post(auth_url + 'auth/tokens') do |faraday|
       faraday.body = bod
     end.body
 
