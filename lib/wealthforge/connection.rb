@@ -16,110 +16,58 @@ class WealthForge::Connection
 
 
   def self.post(endpoint, params)
-    p '================'
 
+    # try to make the call
     begin
       response = connection.post do |req|
         req.url endpoint
         req.headers['Content-Type'] = 'application/json'
         req.body = prep_params(params)
       end
-      JSON.parse(response.body, symbolize_names: true)
-      pp JSON.parse(response)
     rescue => e
-      p "8888888888888"
-
-      # raise WealthForge::ApiException.new(e)
-    end
-    p '================'
-
-    # check if token has expired, if so then get the token again and try again
-    pp response
-    # if response.status == 401
+      # if failed then probably a 401 error so go get auth but dont raise error
       retrieve_authorization
+    end
 
-      begin
-        response = connection.post do |req|
-          req.url endpoint
-          req.headers['Content-Type'] = 'application/json'
-          req.body = prep_params(params)
-        end
-        JSON.parse(response.body, symbolize_names: true)
-      rescue => e
-        raise WealthForge::ApiException.new(e)
+    # try again with auth
+    begin
+      response = connection.post do |req|
+        req.url endpoint
+        req.headers['Content-Type'] = 'application/json'
+        req.body = prep_params(params)
       end
-    # end
+    rescue => e
+      raise WealthForge::ApiException.new(e)
+    end
+
     return response
 
   end
 
 
-  def self.put(endpoint, params)
-    begin
-      response = connection.put do |req|
-        req.url endpoint
-        req.headers['Content-Type'] = 'application/json'
-        req.body = prep_params(params)
-      end
-      JSON.parse(response.body, symbolize_names: true)
-    rescue => e
-      raise WealthForge::ApiException.new(e)
-    end
-
-    # check if token has expired, if so then get the token again and try again
-    if response.status == 401
-      retrieve_authorization
-
-      begin
-        response = connection.put do |req|
-          req.url endpoint
-          req.headers['Content-Type'] = 'application/json'
-          req.body = prep_params(params)
-        end
-        JSON.parse(response.body, symbolize_names: true)
-      rescue => e
-        raise WealthForge::ApiException.new(e)
-      end
-    end
-
-  return response
-
-  end
-
-
-  def self.get(endpoint, params, raw = false)
+  def self.get(endpoint, params)
 
     begin
       response = connection.get do |req|
         req.url endpoint
         req.headers['Content-Type'] = 'application/json'
         req.body = prep_params(params)
-
       end
-      raw == false ? JSON.parse(response.body, symbolize_names: true) : response.body
+    rescue => e
+      # if failed then probably a 401 error so go get auth but dont raise error
+      retrieve_authorization
+    end
+    begin
+      response = connection.get do |req|
+        req.url endpoint
+        req.headers['Content-Type'] = 'application/json'
+        req.body = prep_params(params)
+      end
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
 
-    # check if token has expired, if so then get the token again and try again
-    if response.status == 401
-      p '----------- 401 error in get!!!!!!!!!!!'
-
-      retrieve_authorization
-
-      begin
-        response = connection.get do |req|
-          req.url endpoint
-          req.headers['Content-Type'] = 'application/json'
-          req.body = prep_params(params)
-        end
-        raw == false ? JSON.parse(response.body, symbolize_names: true) : response.body
-      rescue => e
-        raise WealthForge::ApiException.new(e)
-      end
-    end
-
-  return response
+    return response
 
   end
 
@@ -185,14 +133,14 @@ class WealthForge::Connection
     # if @wf_cert.nil? && @wf_key.nil?
     #   self.retrieve_authorization
     # end
-    p api_endpoint
+
     bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_cert}\",\"clientSecret\":\"#{@wf_key}\"},\"type\":\"tokens\"}}"
     cert = Faraday.new.post(api_endpoint + 'auth/tokens') do |faraday|
       faraday.body = bod
     end.body
 
     @wf_token = 'Bearer ' + JSON.parse(cert)['data']['attributes']['accessToken']
-    p @wf_token
+
   end
 
 
@@ -226,7 +174,7 @@ class CustomErrors < Faraday::Response::RaiseError
       raise "400 (Bad Request) Response: \n #{JSON.parse(env['body'])}"
     when 401
       # dont fail because it probably means the auth failed
-      p "401 (Bad Request) }"
+      # p "401 (Bad Request) (Probably need to renew token)"
     when 422
       raise "422 (Unprocessable Entity) Response: \n #{JSON.parse(env['body'])}"
     when 500
