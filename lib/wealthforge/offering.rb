@@ -32,7 +32,7 @@ def old_to_new_create_offering(old_json)
         maximumRaise: old_json['maxRaise'].to_s,
         minimumInvestment: old_json['offerDetails'][0]['minInvestment'].to_s,
         paymentMethods: ['ACH', 'WIRE'], # <hardcoded>
-        status: 'DRAFT', # can be one of DRAFT, PENDING_REVIEW, ACTIVE, PAUSED TODO: which one should be sent?          #todo: breaking api, was this implemented right?
+        status: 'PENDING_REVIEW', # <hardcoded>  can be one of DRAFT, PENDING_REVIEW, ACTIVE, PAUSED;   BD say to use PENDING_REVIEW    todo: breaking api, was this implemented right?
         securityTypes: [{
           type: '', # defined below
         }]
