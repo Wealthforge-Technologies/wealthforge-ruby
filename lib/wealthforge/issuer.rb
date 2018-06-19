@@ -19,7 +19,7 @@ private
 def old_to_new_create_issuer(old_json)
 
 
-  new_json = {
+  t = {
     data: {
       attributes: {
         title: old_json['busName'],
@@ -55,5 +55,5 @@ def old_to_new_create_issuer(old_json)
       type: 'organization',
     }
   }
-
+ return t
 end

@@ -1,6 +1,6 @@
 {
   "wf_cert": "",
   "wf_key": "",
-
+  "environment": "local",
   "COMMENT": "these are from WealthForge. Create a file named config.json"
 }

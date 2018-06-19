@@ -1,21 +1,21 @@
 require 'base64'
 require 'mime/types'
 require 'json'
+require 'ostruct'
 
 
 class WealthForge::Investment
-
-
-  def self.create(params)
-    WealthForge::Connection.post "subscriptions", old_to_new_create(params)
+  def self.create(params = {})
+    newjson = old_to_new_create(params)
+    pp "New Request Is :"
+    pp newjson
+    WealthForge::Connection.post "subscriptions", newjson
   end
-
 
   # lexshares will sometimes use this GET
   def self.get(investment_id)
     WealthForge::Connection.get "investment/#{investment_id}", nil
   end
-
 
   def self.create_subscription_agreement(investment_id, params)
     # todo: obie says we will probably just ask for the file. check with dino if thats ok or if they need these fields
@@ -31,147 +31,224 @@ class WealthForge::Investment
 
     WealthForge::Connection.put "investment/#{investment_id}/subscriptionAgreement", mapped_params
   end
+end
 
+
+def setTaxId (taxId)
+    id = nil
+    if taxId != nil 
+        id = taxId.gsub("-", "")
+    end
+    return id
+end
+
+def ConvertToJson(object)
+    newRequest = {}
+    object.each_pair do |key, value|
+        newRequest[key] = case value
+        when OpenStruct then ConvertToJson(value)
+        when Array then value.map { |v| ConvertToJson(v) }
+            else value
+        end
+    end
+    return newRequest
 end
 
 private
-
-def old_to_new_create_subscription(old_json)
-    data: {
-        attributes: {
-            investors: [
-                {
-                    accreditationType: old_json['investor']['accreditation'],
-                    address: {
-                        city: old_json['investor']['city'],
-                        postalCode: old_json['investor']['zip'],
-                        stateProv: old_json['investor']['state'],
-                        street1: old_json['investor']['address'],
-                        street2: old_json['investor']['address2']
-                    },
-                    investorType: old_json['investor']['investorType'],
-                    primaryPhone: old_json['investor']['phone'],
-                    ssn: old_json['investor']['taxId'], # this is ein or ssn depending on investor type
-                    email: old_json['investor']['email'],
-                    isPrimary: true
-                }
-            ],
-            offering: {
-                id: old_json['offeringDetail']
-            },
-            fundingMethods: [
-                {
-                    paymentType: old_json['paymentType'],
-                    investmentAmount: old_json['amount'],
-                    numberOfShares: nil, 
-                    numberOfNotes: nil,
-                    accountNumber: nil,
-                    address:{
-                        street1:nil,
-                        street2:nil,
-                        city:nil,
-                        state:nil,
-                        country:nil,
-                        postalCode:nil,
-                    }
-
-                }
-            ],
-            entityType: old_json['investor']['entityType'],
-            investmentAmount: old_json['amount'], # use amount instead of investAmount because if the price != 1 then investAmount will change
-        },
-        type: "subscription"
-    }
-}
-
-#  ====== load different investor types ======
-#
-if old_json['investor']['investorType'] == 'ENTITY'
-    #todo entity stuff --- NEED EXAMPLE!!!!!
-    new_json[:data][:attributes][:investors][0][:entityType] = old_json['investor']['entityType'] #todo - not sure of this is correct for old json
-    new_json[:data][:attributes][:investors][0][:name] = old_json['investor']['name']
-    new_json[:data][:attributes][:fundingMethods][0][:accountBusinessName] = old_json['account']['name'] # Note: same as investor name
-    if old_json['investor']['signatory'] != nil
-        new_json[:data][:attributes][:investors][0][:signatory][:title] = old_json['investor']['signatory']['title'] #TODO: not in old flow -- default or is it not required
-        new_json[:data][:attributes][:investors][0][:signatory][:address][:city] = old_json['investor']['signatory']['city']
-        new_json[:data][:attributes][:investors][0][:signatory][:address][:street1] = old_json['investor']['signatory']['address']
-        new_json[:data][:attributes][:investors][0][:signatory][:address][:stateProv] = old_json['investor']['signatory']['state']
-        new_json[:data][:attributes][:investors][0][:signatory][:address][:postalCode] = old_json['investor']['signatory']['zip']
-        new_json[:data][:attributes][:investors][0][:signatory][:dateOfBirth] = old_json['investor']['signatory']['dob']
-        new_json[:data][:attributes][:investors][0][:signatory][:lastName] = old_json['investor']['signatory']['lastName']
-        new_json[:data][:attributes][:investors][0][:signatory][:firstName] = old_json['investor']['signatory']['firstName']
-        new_json[:data][:attributes][:investors][0][:signatory][:signatoryAuthority] = old_json['investor']['signatory']['signatoryAuthority'] #TODO: is this in old flow?
-        new_json[:data][:attributes][:investors][0][:signatory][:ssn] = old_json['investor']['signatory']['taxId'] #TODO:
-    else
-        # new_json['data']['attributes']['investors'][0]['signatory']['title'] = old_json['investor'] #TODO: not in old flow -- default or is it not required
-        # new_json['data']['attributes']['investors'][0]['signatory']['address']['city'] = old_json['investor']['city']
-        # new_json['data']['attributes']['investors'][0]['signatory']['address']['street1'] = old_json['investor']['address']
-        # new_json['data']['attributes']['investors'][0]['signatory']['address']['stateProv'] = old_json['investor']['state']
-        # new_json['data']['attributes']['investors'][0]['signatory']['address']['postalCode'] = old_json['investor']['zip']
-        # new_json['data']['attributes']['investors'][0]['signatory']['dateOfBirth'] = old_json['investor']['dob']
-        # new_json['data']['attributes']['investors'][0]['signatory']['lastName'] = old_json['investor']['']
-        # new_json['data']['attributes']['investors'][0]['signatory']['firstName'] = old_json['investor']['']
-        # new_json['data']['attributes']['investors'][0]['signatory']['signatoryAuthority'] = old_json['investor'][''] #TODO: is this in old flow?
-        # new_json['data']['attributes']['investors'][0]['signatory']['ssn'] = old_json['investor'][''] #TODO:
-    end
-elsif old_json['investor']['investorType'] == 'INDIVIDUAL'
-   #todo move individual stuff here
-    new_json[:data][:attributes][:investors][0][:dateOfBirth] = old_json['investor']['dob']
-    new_json[:data][:attributes][:investors][0][:fistName] = old_json['investor']['firstName'] # Note: Dino says he will send the first and last separately because gen1 had them together in 'name'
-    new_json[:data][:attributes][:investors][0][:lastName] = old_json['investor']['lastName']
-    new_json[:data][:attributes][:investors][0][:ein] = old_json['investor']['taxId'] #TODO:
-end
-
-#fill investor address
-new_json[:data][:attributes][:investors][0][:address][:street1] = old_json['investor']['address'] #TODO
-new_json[:data][:attributes][:investors][0][:address][:city] = old_json['investor']['city']
-new_json[:data][:attributes][:investors][0][:address][:stateProv] = old_json['investor']['state']
-new_json[:data][:attributes][:investors][0][:address][:postalCode] = old_json['investor']['zip']
-new_json[:data][:attributes][:investors][0][:address][:country] = 'USA'
-
-# #  ====== load different payment method types ======
-case old_json['paymentType']
-when 'ACH'
-    new_json[:data][:attributes][:fundingMethods][0][:accountNumber] = old_json['account']['number'] #TODO: get from different example, it is null
-
-    #fill with default value if not given
-    if old_json['account']['bankAccountType'] != nil
-        new_json[:data][:attributes][:fundingMethods][0][:accountType] = old_json['account']['bankAccountType']
-    else
-        new_json[:data][:attributes][:fundingMethods][0][:accountType] = 'Checking' #TODO: api has a nacha object that has this info but idk where it is in the normal call
-    end
+def old_to_new_create(old_json)
     
-    new_json[:data][:attributes][:fundingMethods][0][:bankName] = old_json['account']['bankName'] #TODO: uncollected by lexshares
-    new_json[:data][:attributes][:fundingMethods][0][:routingNumber] = old_json['account']['routing']
-    new_json[:data][:attributes][:fundingMethods][0][:accountBusinessName] = old_json['account']['accountBusinessName']
-    new_json[:data][:attributes][:fundingMethods][0][:accountBusinessName] = old_json['account']['accountBusinessName']
-    new_json[:data][:attributes][:fundingMethods][0][:accountFirstName] = old_json['account']['accountFirstName']
-    new_json[:data][:attributes][:fundingMethods][0][:accountLastName] = old_json['account']['accountLastName']
+    newJ = {
+        data: {
+            attributes: {
+                investors: [
+                    {
+                        accreditationType: nil,
+                        address: {
+                            city: nil,
+                            country: nil,
+                            postalCode: nil,
+                            stateProv: nil,
+                            street1: nil,
+                            street2: nil
+                        },
+                        crdNumber: nil,
+                        dateOfBirth: nil,
+                        emailAddress: nil,
+                        firstName: nil,
+                        investorType: nil,
+                        isPrimary: nil,
+                        lastName: nil,
+                        name: nil,
+                        primaryPhone: nil,
+                        ssn: nil,
+                        ein: nil,                        
+                        signatory: {
+                            title: nil,
+                            address: {
+                                city: nil,
+                                street1: nil,
+                                street2: nil,
+                                stateProv: nil,
+                                postalCode: nil, 
+                                country: nil
+                            },
+                            dataOfBirth: nil,
+                            lastName: nil,
+                            fistName: nil,
+                            signatoryAuthority: nil,
+                            taxId: nil 
+                        }
+                    }
+                ],
+                fundingMethods: [
+                    {
+                        accountFirstName: nil,
+                        accountLastName: nil,
+                        accountNumber: nil,
+                        accountType:nil,
+                        bankName: nil,
+                        routingNumber: nil,
+                        address:{
+                            street1:nil,
+                            street2:nil,
+                            city:nil,
+                            state:nil,
+                            country:nil,
+                            postalCode:nil
+                        }, 
+                        investmentAmount: nil,
+                        numberOfShares: nil, 
+                        numberOfNotes: nil,
+                        paymentType: nil
+                    }
+                ],
+                investmentAmount: nil,
+                offering: {
+                    id: nil, # old_json['offeringDetail']
+                    name: nil, # old_json['offeringName']
+                    securityType: nil
+                }
+            },
+            type: "subscription"
+        }
+    }
+    
+    outJson = JSON(newJ)
+    outObject = JSON.parse(outJson, object_class: OpenStruct)
+    inJson = JSON(old_json)
+    inObject = JSON.parse(inJson, object_class: OpenStruct)
 
-    if old_json['account']['address'] != nil 
-        new_json[:data][:attributes][:fundingMethods][0][:address][:street1] = old_json['account']['address']['street1'] #TODO
-        new_json[:data][:attributes][:fundingMethods][0][:address][:city] = old_json['account']['address']['city']
-        new_json[:data][:attributes][:fundingMethods][0][:address][:stateProv] = old_json['account']['address']['state']
-        new_json[:data][:attributes][:fundingMethods][0][:address][:postalCode] = old_json['account']['address']['zip']
-        new_json[:data][:attributes][:fundingMethods][0][:address][:country] = 'USA'
-    end 
 
-when 'WIRE'
-  # do nothing
-else
-  # other payment types are not supported in either generation (no IRA in gen1, no check in gen4)
-  #p '--- ERROR: unmapped or invalid payment type in subscription!!'
+    outObject.data.attributes.investAmount = inObject.investor.investAmount
+
+    investor = outObject.data.attributes.investors[0]
+    investor.accreditationType = inObject.investor.accreditation
+    investor.entityType = inObject.investor.entityType
+    investor.emailAddress = inObject.investor.email
+    investor.isPrimary = true
+    investor.primaryPhone = inObject.investor.phone
+    
+    #====== load different investor types ======
+    if inObject.investor.investorType == 'ENTITY'
+        investor.investorType = inObject.investor.investorType
+        investor.accountBusinessName = inObject.investor.name
+        investor.investmentAmount = inObject.investAmount
+        investor.ein = setTaxId (inObject.investor.taxId)
+        investor.entityType = inObject.investor.investorSubType
+        investor.dateOfBirth = inObject.investor.dob
+        investor.name = inObject.investor.name
+
+        #Fill signatory with default if not given in request
+        if inObject.investor.signatory != nil 
+            investor.signatory.title = inObject.investor.signatory.title
+            investor.signatory.address.city = inObject.investor.signatory.city
+            investor.signatory.address.street1 = inObject.investor.signatory.address
+            investor.signatory.address.stateProv = inObject.investor.signatory.state
+            investor.signatory.address.postalCode = inObject.investor.signatory.zip
+            investor.signatory.address.country = 'USA' 
+            investor.signatory.dateOfBirth =inObject.investor.signatory.dob
+            investor.signatory.lastName = inObject.investor.signatory.lastName
+            investor.signatory.firstName = inObject.investor.signatory.firstName
+            investor.signatory.signatoryAuthority = inObject.investor.signatory.signatoryAuthority
+            investor.signatory.ssn = setTaxId (inObject.investor.signatory.taxId) 
+        else 
+            #Signatory is required. Fill signatory with default if not given in request 
+            investor.signatory.address.city = inObject.investor.city
+            investor.signatory.address.street1 = inObject.investor.address
+            investor.signatory.address.stateProv = inObject.investor.state
+            investor.signatory.address.postalCode = inObject.investor.zip
+            investor.signatory.address.country = 'USA'
+            investor.signatory.dateOfBirth =inObject.investor.dob
+            investor.signatory.lastName = inObject.investor.lastName
+            investor.signatory.firstName = inObject.investor.firstName
+            investor.signatory.signatoryAuthority = true
+            investor.signatory.ssn = setTaxId (inObject.investor.signatory.taxId) 
+        end 
+
+    elsif inObject.investor.investorType == 'INDIVIDUAL'
+        #INDIVIDUAL
+        investor.investorType = 'INDIVIDUAL'
+        investor.firstName = inObject.investor.firstName
+        investor.lastName = inObject.investor.lastName
+        investor.dateOfBirth = inObject.investor.dob
+        investor.ssn = setTaxId (inObject.investor.taxId)
+        
+    end
+
+    #fill investor address
+    investor.address.street1 = inObject.investor.address
+    investor.address.city = inObject.investor.city
+    investor.address.stateProv = inObject.investor.state
+    investor.address.postalCode = inObject.investor.zip
+    investor.address.country = 'USA'
+
+    outObject.data.attributes.investors[0] = investor
+        
+    fundingMethod = outObject.data.attributes.fundingMethods[0]
+    # # #  ====== load different payment method types ====== # # #
+    case inObject.paymentType
+    when 'ACH'
+        fundingMethod.accountNumber = inObject.account.number
+
+        #fill accountType with default value if not given
+        if inObject.account.bankAccountType != nil
+            fundingMethod.accountType = accountType.upcase
+        else
+            fundingMethod.accountType = 'CHECKING'
+        end
+
+        #fill bankName with default value if not given
+        if inObject.account.bankName != nil
+            fundingMethod.bankName = inObject.account.bankName
+        else 
+            fundingMethod.bankName = 'N/A'
+        end 
+            
+        fundingMethod.paymentType = 'ACH'
+        fundingMethod.routingNumber = inObject.account.routing
+        fundingMethod.accountBusinessName = inObject.account.accountBusinessName
+        fundingMethod.accountFirstName = inObject.account.accountFirstName
+        fundingMethod.accountLastName = inObject.account.accountLastName
+        fundingMethod.investmentAmount = inObject.investAmount.to_s
+
+        if inObject.account.address != nil
+            fundingMethod.address.street1 = inObject.account.address
+            fundingMethod.address.city = inObject.account.city
+            fundingMethod.address.stateProv = inObject.account.state
+            fundingMethod.address.postalCode = inObject.account.zip
+            fundingMethod.address.country = 'USA'
+        end
+
+    when 'WIRE'
+        fundingMethod.paymentType = 'WIRE'
+        fundingMethod.investmentAmount = inObject.investAmount.to_s
+    end
+        
+    newWFRequest = ConvertToJson(outObject)
+    return newWFRequest
 end
-
-
-
-pp new_json
-return new_json
-end
-
-
 
 
 # ========================
 # ==== helper methods ====
-# ========================
+# =======================

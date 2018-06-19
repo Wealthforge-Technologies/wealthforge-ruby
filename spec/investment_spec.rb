@@ -17,15 +17,6 @@ describe WealthForge::Investment do
 
     it "create NEW investment" do
 
-      # old_json = JSON['{
-      #     "investor": "524fcabb-a122-428f-bc20-1247cf87c1b3",
-      #     "account": null,
-      #     "investAmount": 75000,
-      #     "amount": 75000,
-      #     "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
-      #     "status": "INVESTMENT_PENDING",
-      #     "paymentType": "WIRE"
-      # }']
       old_json = JSON['{
         "investor": {
            "address":"24 Snoshu",
@@ -36,9 +27,9 @@ describe WealthForge::Investment do
            "city":"Anchorage",
            "zip":"90001",
            "email":"dino.simone+alaska@lexshares.com",
-           "investorType":"INDIVIDUAL",
-           "investorSubType":null,
-           "accreditation":"INCOME",
+           "investorType": "ENTITY",
+           "investorSubType": "OTHER",
+           "accreditation": "INCOME",
            "accredited":true,
            "phone":"123-123-1212",
            "investmentTimeline":null,
@@ -48,17 +39,29 @@ describe WealthForge::Investment do
            "status":"INVESTOR_ACTIVE",
            "logo":"http://none",
            "investorUrl":"http://none",
-           "purchaseRepExists":false
+           "purchaseRepExists":false,
+           "signatory": {
+            "title": "the title",
+            "city" : "City",
+            "address": "123 Dale Street",
+            "state": "state",
+            "zip": "12345",
+            "dob": "1955-01-01",
+            "firstName": "firstName",
+            "lastName": "lastName",
+            "signatoryAuthority": true,
+            "taxId":"123123123"
+          }
         },
         "account": {
             "nacha":"WEB",
             "name":"Kelly Tester07",
             "routing":"123456789",
             "number":"12431424",
-            "address":"24 Snoshu",
-            "state":"AK",
-            "city":"Anchorage",
-            "zip":"90001"
+            "address":"456 Oak Tree Lane, Suite 50",
+            "city": "Richmond",
+            "state":"VA",
+            "zip":"12345"
           },
         "investAmount": 75000,
         "amount": 75000,

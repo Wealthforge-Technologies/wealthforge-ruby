@@ -14,7 +14,6 @@ class WealthForge::Connection
     @wf_token
   end
 
-
   def self.post(endpoint, params)
 
     # try to make the call
