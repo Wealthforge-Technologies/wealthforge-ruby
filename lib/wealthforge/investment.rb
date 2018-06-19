@@ -124,8 +124,8 @@ def old_to_new_create(old_json)
                 ],
                 investmentAmount: nil,
                 offering: {
-                    id: nil, # old_json['offeringDetail']
-                    name: nil, # old_json['offeringName']
+                    id: nil, 
+                    name: nil, 
                     securityType: nil
                 }
             },
@@ -139,112 +139,12 @@ def old_to_new_create(old_json)
     inObject = JSON.parse(inJson, object_class: OpenStruct)
 
 
-    outObject.data.attributes.investAmount = inObject.investor.investAmount
-
-    investor = outObject.data.attributes.investors[0]
-    investor.accreditationType = inObject.investor.accreditation
-    investor.entityType = inObject.investor.entityType
-    investor.emailAddress = inObject.investor.email
-    investor.isPrimary = true
-    investor.primaryPhone = inObject.investor.phone
-    
-    #====== load different investor types ======
-    if inObject.investor.investorType == 'ENTITY'
-        investor.investorType = inObject.investor.investorType
-        investor.accountBusinessName = inObject.investor.name
-        investor.investmentAmount = inObject.investAmount
-        investor.ein = setTaxId (inObject.investor.taxId)
-        investor.entityType = inObject.investor.investorSubType
-        investor.dateOfBirth = inObject.investor.dob
-        investor.name = inObject.investor.name
-
-        #Fill signatory with default if not given in request
-        if inObject.investor.signatory != nil 
-            investor.signatory.title = inObject.investor.signatory.title
-            investor.signatory.address.city = inObject.investor.signatory.city
-            investor.signatory.address.street1 = inObject.investor.signatory.address
-            investor.signatory.address.stateProv = inObject.investor.signatory.state
-            investor.signatory.address.postalCode = inObject.investor.signatory.zip
-            investor.signatory.address.country = 'USA' 
-            investor.signatory.dateOfBirth =inObject.investor.signatory.dob
-            investor.signatory.lastName = inObject.investor.signatory.lastName
-            investor.signatory.firstName = inObject.investor.signatory.firstName
-            investor.signatory.signatoryAuthority = inObject.investor.signatory.signatoryAuthority
-            investor.signatory.ssn = setTaxId (inObject.investor.signatory.taxId) 
-        else 
-            #Signatory is required. Fill signatory with default if not given in request 
-            investor.signatory.address.city = inObject.investor.city
-            investor.signatory.address.street1 = inObject.investor.address
-            investor.signatory.address.stateProv = inObject.investor.state
-            investor.signatory.address.postalCode = inObject.investor.zip
-            investor.signatory.address.country = 'USA'
-            investor.signatory.dateOfBirth =inObject.investor.dob
-            investor.signatory.lastName = inObject.investor.lastName
-            investor.signatory.firstName = inObject.investor.firstName
-            investor.signatory.signatoryAuthority = true
-            investor.signatory.ssn = setTaxId (inObject.investor.signatory.taxId) 
-        end 
-
-    elsif inObject.investor.investorType == 'INDIVIDUAL'
-        #INDIVIDUAL
-        investor.investorType = 'INDIVIDUAL'
-        investor.firstName = inObject.investor.firstName
-        investor.lastName = inObject.investor.lastName
-        investor.dateOfBirth = inObject.investor.dob
-        investor.ssn = setTaxId (inObject.investor.taxId)
-        
-    end
-
-    #fill investor address
-    investor.address.street1 = inObject.investor.address
-    investor.address.city = inObject.investor.city
-    investor.address.stateProv = inObject.investor.state
-    investor.address.postalCode = inObject.investor.zip
-    investor.address.country = 'USA'
-
-    outObject.data.attributes.investors[0] = investor
-        
-    fundingMethod = outObject.data.attributes.fundingMethods[0]
-    # # #  ====== load different payment method types ====== # # #
-    case inObject.paymentType
-    when 'ACH'
-        fundingMethod.accountNumber = inObject.account.number
-
-        #fill accountType with default value if not given
-        if inObject.account.bankAccountType != nil
-            fundingMethod.accountType = accountType.upcase
-        else
-            fundingMethod.accountType = 'CHECKING'
-        end
-
-        #fill bankName with default value if not given
-        if inObject.account.bankName != nil
-            fundingMethod.bankName = inObject.account.bankName
-        else 
-            fundingMethod.bankName = 'N/A'
-        end 
-            
-        fundingMethod.paymentType = 'ACH'
-        fundingMethod.routingNumber = inObject.account.routing
-        fundingMethod.accountBusinessName = inObject.account.accountBusinessName
-        fundingMethod.accountFirstName = inObject.account.accountFirstName
-        fundingMethod.accountLastName = inObject.account.accountLastName
-        fundingMethod.investmentAmount = inObject.investAmount.to_s
-
-        if inObject.account.address != nil
-            fundingMethod.address.street1 = inObject.account.address
-            fundingMethod.address.city = inObject.account.city
-            fundingMethod.address.stateProv = inObject.account.state
-            fundingMethod.address.postalCode = inObject.account.zip
-            fundingMethod.address.country = 'USA'
-        end
-
-    when 'WIRE'
-        fundingMethod.paymentType = 'WIRE'
-        fundingMethod.investmentAmount = inObject.investAmount.to_s
-    end
-        
+    outObject.data.attributes.investAmount = inObject.investor.investAmount        
+    outObject.data.attributes.investors[0] = getInvestor(inObject.investor, outObject.data.attributes.investors[0])
+    outObject.data.attributes.fundingMethods[0] = getFundingMethod(inObject, outObject.data.attributes.fundingMethods[0])
+    outObject.data.attributes.Offering = getOffering(inObject, outObject.data.attributes.offering)
     newWFRequest = ConvertToJson(outObject)
+
     return newWFRequest
 end
 
@@ -252,3 +152,118 @@ end
 # ========================
 # ==== helper methods ====
 # =======================
+private 
+def getInvestor(request, investor)
+
+    investor.accreditationType = request.accreditation
+    investor.emailAddress = request.email
+    investor.isPrimary = true
+    investor.primaryPhone = request.phone
+    
+    #====== load different investor types ======
+    if request.investorType == 'ENTITY'
+        investor.investorType = request.investorType
+        investor.accountBusinessName = request.name
+        investor.investmentAmount = request.investAmount
+        investor.ein = setTaxId (request.taxId)
+        investor.entityType = request.investorSubType
+        investor.dateOfBirth = request.dob
+        investor.name = request.name
+
+        #Fill signatory with default if not given in request
+        if request.signatory != nil 
+            investor.signatory.title = request.signatory.title
+            investor.signatory.address.city = request.signatory.city
+            investor.signatory.address.street1 = request.signatory.address
+            investor.signatory.address.stateProv = request.signatory.state
+            investor.signatory.address.postalCode = request.signatory.zip
+            investor.signatory.address.country = 'USA' 
+            investor.signatory.dateOfBirth =request.signatory.dob
+            investor.signatory.lastName = request.signatory.lastName
+            investor.signatory.firstName = request.signatory.firstName
+            investor.signatory.signatoryAuthority = request.signatory.signatoryAuthority
+            investor.signatory.ssn = setTaxId (request.signatory.taxId) 
+        else 
+            #Signatory is required. Fill signatory with default if not given in request 
+            investor.signatory.address.city = request.city
+            investor.signatory.address.street1 = request.address
+            investor.signatory.address.stateProv = request.state
+            investor.signatory.address.postalCode = request.zip
+            investor.signatory.address.country = 'USA'
+            investor.signatory.dateOfBirth =request.dob
+            investor.signatory.lastName = request.lastName
+            investor.signatory.firstName = request.firstName
+            investor.signatory.signatoryAuthority = true
+            investor.signatory.ssn = setTaxId (request.signatory.taxId) 
+        end 
+
+    elsif request.investorType == 'INDIVIDUAL'
+        #INDIVIDUAL
+        investor.investorType = 'INDIVIDUAL'
+        investor.firstName = request.firstName
+        investor.lastName = request.lastName
+        investor.dateOfBirth = request.dob
+        investor.ssn = setTaxId (request.taxId)
+    end
+
+    #fill investor address
+    investor.address.street1 = request.address
+    investor.address.city = request.city
+    investor.address.stateProv = request.state
+    investor.address.postalCode = request.zip
+    investor.address.country = 'USA'
+
+    return investor
+end
+
+private
+def getFundingMethod (request, fundingMethod)
+    # # #  ====== load different payment method types ====== # # #
+    account = request.account
+    
+    case request.paymentType
+    when 'ACH'
+        fundingMethod.accountNumber = account.number
+
+        #fill accountType with default value if not given
+        if account.bankAccountType != nil
+            fundingMethod.accountType = account.bankAccountType.upcase
+        else
+            fundingMethod.accountType = 'CHECKING'
+        end
+
+        #fill bankName with default value if not given
+        if account.bankName != nil
+            fundingMethod.bankName = account.bankName
+        else 
+            fundingMethod.bankName = 'N/A'
+        end 
+            
+        fundingMethod.paymentType = 'ACH'
+        fundingMethod.routingNumber = account.routing
+        fundingMethod.accountBusinessName = account.accountBusinessName
+        fundingMethod.accountFirstName = account.accountFirstName
+        fundingMethod.accountLastName = account.accountLastName
+
+        if account.address != nil
+            fundingMethod.address.street1 = account.address
+            fundingMethod.address.city = account.city
+            fundingMethod.address.stateProv = account.state
+            fundingMethod.address.postalCode = account.zip
+            fundingMethod.address.country = 'USA'
+        end
+    when 'WIRE'
+        fundingMethod.paymentType = 'WIRE'
+    end
+
+    fundingMethod.investmentAmount = request.investAmount.to_s
+    return fundingMethod
+end 
+
+private 
+def getOffering (request, offering)
+    offering.name = request.offeringName
+    offering.securityType = request.securityType
+    offering.id = request.offerDetail
+    return offering
+end

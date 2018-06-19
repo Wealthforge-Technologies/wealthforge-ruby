@@ -66,6 +66,7 @@ describe WealthForge::Investment do
         "investAmount": 75000,
         "amount": 75000,
         "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+        "offeringName": "test offering name",
         "status": "INVESTMENT_PENDING",
         "paymentType": "ACH"
       }']
