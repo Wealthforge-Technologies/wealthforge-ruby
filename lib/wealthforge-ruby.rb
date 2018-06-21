@@ -4,7 +4,7 @@ require "wealthforge/connection"
 require "wealthforge/investment"
 require "wealthforge/issuer"
 require "wealthforge/offering"
-require "wealthforge/stash"
+require "wealthforge/Util"
 
 module WealthForge
 

@@ -9,9 +9,10 @@ require 'pp'
 class WealthForge::Connection
 
   def initialize()
-    @wf_key
-    @wf_cert
-    @wf_token
+    # @wf_client_id
+    # @wf_client_secret
+    # @wf_token
+    # @environment
   end
 
   def self.post(endpoint, params)
@@ -45,7 +46,6 @@ class WealthForge::Connection
 
 
   def self.get(endpoint, params)
-
     begin
       response = connection.get do |req|
         req.url endpoint
@@ -56,6 +56,7 @@ class WealthForge::Connection
       # if failed then probably a 401 error so go get auth but dont raise error
       retrieve_authorization
     end
+
     begin
       response = connection.get do |req|
         req.url endpoint
@@ -65,7 +66,6 @@ class WealthForge::Connection
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
-
     return response
 
   end
@@ -82,42 +82,24 @@ class WealthForge::Connection
 
 
   def self.api_endpoint
-    api_endpoint = ''
+    case @environment
+      when 'prod'
+        api_endpoint = '__TODO__' #TODO
+      else
+        api_endpoint = "http://localhost:4000/#{WealthForge.configuration.version}/"
 
-    unless WealthForge.configuration.environment.nil?
-      case WealthForge.configuration.environment
-        when 'local'
-          api_endpoint = "http://localhost:4000/#{WealthForge.configuration.version}/"
-        when 'ci'
-          api_endpoint = "https://ci.wealthforge.org/wfh-api/#{WealthForge.configuration.version}/"
-        when 'qa1'
-          api_endpoint = "https://api.wealthforge.org/#{WealthForge.configuration.version}/"
-        when 'stage'
-          api_endpoint = '__TODO__' #TODO
-        when 'prod'
-          api_endpoint = '__TODO__' #TODO
-        else
-          puts '__ERROR__: Invalid environment in configuration'
-      end
     end
     return api_endpoint
-
   end
 
   def self.tokens_endpoint
-    tokens_endpoint = ''
-
-    unless WealthForge.configuration.environment.nil?
-      case WealthForge.configuration.environment
-        when 'stage'
-          tokens_endpoint = '__TODO__' #TODO
-        when 'prod'
-          tokens_endpoint = '__TODO__' #TODO
-        else
-          tokens_endpoint = "https://api.wealthforge.org/#{WealthForge.configuration.version}/"
-      end
+    case @environment
+      when 'prod'
+        tokens_endpoint = '__TODO__' #TODO
+      else
+        tokens_endpoint = "https://ci.wealthforge.org/wfh-api/v1/auth/tokens"
     end
-    return api_endpoint
+    return tokens_endpoint
 
   end
 
@@ -127,7 +109,7 @@ class WealthForge::Connection
     @wf_token = 'Bearer dummy token'
     end
 
-    return Faraday.new(:url => tokens_endpoint) do |faraday|
+    return Faraday.new(:url => api_endpoint) do |faraday|
       faraday.request :url_encoded
       faraday.headers['authorization'] = @wf_token
       faraday.adapter Faraday.default_adapter
@@ -140,25 +122,22 @@ class WealthForge::Connection
 
   def self.retrieve_token
 
-    if WealthForge.configuration.environment == 'local'
-      # local creds are retrieved from ci
-      auth_url =  "https://ci.wealthforge.org/wfh-api/#{WealthForge.configuration.version}/"
-    else
-      auth_url = api_endpoint
-    end
+    auth_url = tokens_endpoint
+    # pp tokens_endpoint
+    # pp @wf_client_secret
+    # pp @wf_client_id
+    # pp @environment + '  ENV '
 
-    bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_cert}\",\"clientSecret\":\"#{@wf_key}\"},\"type\":\"tokens\"}}"
-    cert = Faraday.new.post(auth_url + 'auth/tokens') do |faraday|
+    bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_client_id}\",\"clientSecret\":\"#{@wf_client_secret}\"},\"type\":\"tokens\"}}"
+    cert = Faraday.new.post(tokens_endpoint) do |faraday|
       faraday.body = bod
     end.body
-
+   
     @wf_token = 'Bearer ' + JSON.parse(cert)['data']['attributes']['accessToken']
-
   end
 
 
   def self.retrieve_authorization
-
     begin
       file = File.read('configs/config.json')
       config_data = JSON.parse(file)
@@ -166,16 +145,15 @@ class WealthForge::Connection
       raise "__ERROR__ Please make a config file in configs/config.json    Exception: #{err.__id__}"
     end
 
-
-    if config_data['wf_cert'].nil? || config_data['wf_key'].nil?
+    if config_data['wf_client_secret'].nil? || config_data['wf_client_id'].nil?
       p '__ERROR__ Please verify the key and cert are in configs/config.json'
     else
-      @wf_cert = config_data['wf_cert']
-      @wf_key = config_data['wf_key']
+      @wf_client_secret = config_data['wf_client_secret']
+      @wf_client_id = config_data['wf_client_id']
+      @environment = config_data['environment']
     end
     @wf_token = retrieve_token
   end
-
 end
 
 

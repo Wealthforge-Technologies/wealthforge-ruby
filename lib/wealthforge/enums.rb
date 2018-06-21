@@ -120,16 +120,13 @@ class Enums
   }
 
 
-
-
-
   @payment_type_enum = {
       # old: new
       'ACH' => 'ACH',
       'WIRE' => 'WIRE',
-      'IRA' => 'IRA',
-      'CHECK' => 'CHECK',
-      'EXCHANGE_1031' => '1031_EXCHANGE'
+      # 'IRA' => 'IRA',
+      # 'CHECK' => 'CHECK',
+      # 'EXCHANGE_1031' => '1031_EXCHANGE'
   }
 
 end

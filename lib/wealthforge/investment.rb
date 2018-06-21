@@ -6,10 +6,8 @@ require 'ostruct'
 
 class WealthForge::Investment
   def self.create(params = {})
-    newjson = old_to_new_create(params)
-    pp "New Request Is :"
-    pp newjson
-    WealthForge::Connection.post "subscriptions", newjson
+    new_request = old_to_new_create(params)
+    WealthForge::Connection.post "subscriptions", new_request
   end
 
   # lexshares will sometimes use this GET
@@ -34,30 +32,12 @@ class WealthForge::Investment
 end
 
 
-def setTaxId (taxId)
-    id = nil
-    if taxId != nil 
-        id = taxId.gsub("-", "")
-    end
-    return id
-end
 
-def ConvertToJson(object)
-    newRequest = {}
-    object.each_pair do |key, value|
-        newRequest[key] = case value
-        when OpenStruct then ConvertToJson(value)
-        when Array then value.map { |v| ConvertToJson(v) }
-            else value
-        end
-    end
-    return newRequest
-end
 
 private
 def old_to_new_create(old_json)
     
-    newJ = {
+    wf_model = {
         data: {
             attributes: {
                 investors: [
@@ -133,27 +113,28 @@ def old_to_new_create(old_json)
         }
     }
     
-    outJson = JSON(newJ)
-    outObject = JSON.parse(outJson, object_class: OpenStruct)
-    inJson = JSON(old_json)
-    inObject = JSON.parse(inJson, object_class: OpenStruct)
+    new_wf_request = JSON(wf_model)
+    wf_object = JSON.parse(new_wf_request, object_class: OpenStruct)
+    in_request = JSON(old_json)
+    in_object = JSON.parse(in_request, object_class: OpenStruct)
 
+    #== hydrate wf_object with data from depreciated request
+    wf_object.data.attributes.investAmount = in_object.amount     
+    wf_object.data.attributes.investors[0] = fill_investor(in_object.investor, wf_object.data.attributes.investors[0])
+    wf_object.data.attributes.fundingMethods[0] = fill_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
+    wf_object.data.attributes.Offering = fill_offering(in_object, wf_object.data.attributes.offering)
 
-    outObject.data.attributes.investAmount = inObject.investor.investAmount        
-    outObject.data.attributes.investors[0] = getInvestor(inObject.investor, outObject.data.attributes.investors[0])
-    outObject.data.attributes.fundingMethods[0] = getFundingMethod(inObject, outObject.data.attributes.fundingMethods[0])
-    outObject.data.attributes.Offering = getOffering(inObject, outObject.data.attributes.offering)
-    newWFRequest = ConvertToJson(outObject)
+    new_wf_request = WealthForge::Util.convert_to_json wf_object
 
-    return newWFRequest
+    return new_wf_request
 end
 
 
 # ========================
 # ==== helper methods ====
-# =======================
+# ========================
 private 
-def getInvestor(request, investor)
+def fill_investor(request, investor)
 
     investor.accreditationType = request.accreditation
     investor.emailAddress = request.email
@@ -165,12 +146,12 @@ def getInvestor(request, investor)
         investor.investorType = request.investorType
         investor.accountBusinessName = request.name
         investor.investmentAmount = request.investAmount
-        investor.ein = setTaxId (request.taxId)
         investor.entityType = request.investorSubType
         investor.dateOfBirth = request.dob
         investor.name = request.name
+        investor.ein = WealthForge::Util.format_tax_id (request.taxId)
 
-        #Fill signatory with default if not given in request
+        #== Fill signatory with default if not given in request
         if request.signatory != nil 
             investor.signatory.title = request.signatory.title
             investor.signatory.address.city = request.signatory.city
@@ -182,9 +163,10 @@ def getInvestor(request, investor)
             investor.signatory.lastName = request.signatory.lastName
             investor.signatory.firstName = request.signatory.firstName
             investor.signatory.signatoryAuthority = request.signatory.signatoryAuthority
-            investor.signatory.ssn = setTaxId (request.signatory.taxId) 
+            investor.signatory.ssn = WealthForge::Util.format_tax_id request.signatory.taxId
         else 
-            #Signatory is required. Fill signatory with default if not given in request 
+            #== Signatory is required. Fill signatory with default if not given in request 
+            investor.signatory.title = "N/A"
             investor.signatory.address.city = request.city
             investor.signatory.address.street1 = request.address
             investor.signatory.address.stateProv = request.state
@@ -194,19 +176,19 @@ def getInvestor(request, investor)
             investor.signatory.lastName = request.lastName
             investor.signatory.firstName = request.firstName
             investor.signatory.signatoryAuthority = true
-            investor.signatory.ssn = setTaxId (request.signatory.taxId) 
+            investor.signatory.ssn = WealthForge::Util.format_tax_id (request.taxId) 
         end 
 
     elsif request.investorType == 'INDIVIDUAL'
-        #INDIVIDUAL
+        #== INDIVIDUAL
         investor.investorType = 'INDIVIDUAL'
         investor.firstName = request.firstName
         investor.lastName = request.lastName
         investor.dateOfBirth = request.dob
-        investor.ssn = setTaxId (request.taxId)
+        investor.ssn = WealthForge::Util.format_tax_id (request.taxId)
     end
 
-    #fill investor address
+    #== investor address
     investor.address.street1 = request.address
     investor.address.city = request.city
     investor.address.stateProv = request.state
@@ -217,8 +199,8 @@ def getInvestor(request, investor)
 end
 
 private
-def getFundingMethod (request, fundingMethod)
-    # # #  ====== load different payment method types ====== # # #
+def fill_funding_method (request, fundingMethod)
+    # # #  ====== load different payment method types of ACH or WIRE ====== # # #
     account = request.account
     
     case request.paymentType
@@ -241,7 +223,7 @@ def getFundingMethod (request, fundingMethod)
             
         fundingMethod.paymentType = 'ACH'
         fundingMethod.routingNumber = account.routing
-        fundingMethod.accountBusinessName = account.accountBusinessName
+        fundingMethod.accountBusinessName = account.name
         fundingMethod.accountFirstName = account.accountFirstName
         fundingMethod.accountLastName = account.accountLastName
 
@@ -256,14 +238,17 @@ def getFundingMethod (request, fundingMethod)
         fundingMethod.paymentType = 'WIRE'
     end
 
-    fundingMethod.investmentAmount = request.investAmount.to_s
+    fundingMethod.investmentAmount = request.amount.to_s
     return fundingMethod
 end 
 
 private 
-def getOffering (request, offering)
+def fill_offering (request, offering)
     offering.name = request.offeringName
     offering.securityType = request.securityType
     offering.id = request.offerDetail
     return offering
 end
+
+
+

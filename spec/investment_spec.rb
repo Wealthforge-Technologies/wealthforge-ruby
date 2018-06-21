@@ -12,15 +12,12 @@ describe WealthForge::Investment do
       end
     end
 
-
-
-
     it "create NEW investment" do
 
       old_json = JSON['{
         "investor": {
            "address":"24 Snoshu",
-           "name":"Dino Simone",
+           "name":"Dino LLC",
            "firstName":"Dino",
            "lastName":"Simone",
            "state":"AK",
@@ -30,38 +27,17 @@ describe WealthForge::Investment do
            "investorType": "ENTITY",
            "investorSubType": "OTHER",
            "accreditation": "INCOME",
-           "accredited":true,
            "phone":"123-123-1212",
-           "investmentTimeline":null,
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "investmentRisk":null,
-           "status":"INVESTOR_ACTIVE",
-           "logo":"http://none",
-           "investorUrl":"http://none",
-           "purchaseRepExists":false,
-           "signatory": {
-            "title": "the title",
-            "city" : "City",
-            "address": "123 Dale Street",
-            "state": "state",
-            "zip": "12345",
-            "dob": "1955-01-01",
-            "firstName": "firstName",
-            "lastName": "lastName",
-            "signatoryAuthority": true,
-            "taxId":"123123123"
-          }
+           "status":"INVESTOR_ACTIVE"
         },
         "account": {
             "nacha":"WEB",
             "name":"Kelly Tester07",
             "routing":"123456789",
-            "number":"12431424",
-            "address":"456 Oak Tree Lane, Suite 50",
-            "city": "Richmond",
-            "state":"VA",
-            "zip":"12345"
+            "number":"12431424"
           },
         "investAmount": 75000,
         "amount": 75000,
