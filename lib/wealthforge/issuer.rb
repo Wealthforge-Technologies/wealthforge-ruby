@@ -18,8 +18,24 @@ end
 private
 def old_to_new_create_issuer(old_json)
 
-
-  t = {
+  # {
+  #   "address": "124 Investor Way",
+  #   "city": "Boston",
+  #   "state": { "code": "VA" },
+  #   "zip": "02139",
+  #   "country": { "code": "US" },
+  #   "busName": "LexShares",
+  #   "accountingFirm": "Accountants, LLC",
+  #   "founderName": "James Smith",
+  #   "stateOfFormation": { "code": "MD" },
+  #   "entityType":  { "code": "ENTITY_TYPE_LLC"},
+  #   "founderTitle": "CEO",
+  #   "dateOfFormation": "2001-11-01",
+  #   "ein": "999999999",
+  #   "email": "wealthforge_api_test@mailinator.com",
+  #   "phone": "2125551234"
+  # }
+  wf_model = {
     data: {
       attributes: {
         title: old_json['busName'],
@@ -40,20 +56,18 @@ def old_to_new_create_issuer(old_json)
           stateProv: old_json['state']['code'],
           postalCode: old_json['zip'],
           country: 'USA'
-        },
-        theme: {
-          logo: old_json['busLogo'], # lexshares won't be using these theme values anyway vvvvvv
-          mobilelogo: old_json['busLogo'],
-          linkBack: 'lexshares.com',
-          linkBackDisplayText: 'go back to lexshares',
-          primary: '000000',
-          secondary: '000000',
-          accent: '000000',
-          docusignBrandID: '11111111-1111-1111-1111-111111111111' #todo: does this need to be changed???
         }
       },
       type: 'organization',
     }
   }
+
+  new_wf_request = JSON(wf_model)
+  wf_object = JSON.parse(new_wf_request, object_class: OpenStruct)
+  in_request = JSON(old_json)
+  in_object = JSON.parse(in_request, object_class: OpenStruct)
+
+  wf_object.data.attributes.address
+
  return t
 end

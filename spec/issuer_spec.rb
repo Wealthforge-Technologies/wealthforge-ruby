@@ -28,8 +28,7 @@ describe WealthForge::Issuer do
         "dateOfFormation": "2001-11-01",
         "ein": "999999999",
         "email": "wealthforge_api_test@mailinator.com",
-        "phone": "2125551234",
-        "busLogo": "http://unews.utah.edu/wp-content/uploads/Cash.jpg"
+        "phone": "2125551234"
       }']
 
 

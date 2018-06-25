@@ -16,7 +16,6 @@ class WealthForge::Connection
   end
 
   def self.post(endpoint, params)
-
     # try to make the call
     begin
       response = connection.post do |req|
@@ -97,7 +96,7 @@ class WealthForge::Connection
       when 'prod'
         tokens_endpoint = '__TODO__' #TODO
       else
-        tokens_endpoint = "https://ci.wealthforge.org/wfh-api/v1/auth/tokens"
+        tokens_endpoint = "https://api.wealthforge.org/v1/auth/tokens"
     end
     return tokens_endpoint
 
