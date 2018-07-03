@@ -16,10 +16,5 @@ wealthforge-ruby-1.1.1.gem
 .idea/vcs.xml
 .idea/wealthforge-ruby.iml
 .idea/workspace.xml
-<<<<<<< HEAD
 .idea/inspectionProfiles/Project_Default.xml
 .idea/inspectionProfiles/Project_Default.xml
-=======
-/vendor/
-Project_Default.xml
->>>>>>> 2e4a4b326ccd18b1af0ef216d66f717c55cd5788
