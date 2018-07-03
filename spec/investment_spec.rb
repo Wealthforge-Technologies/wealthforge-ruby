@@ -14,7 +14,7 @@ describe WealthForge::Investment do
 
     it "create NEW investment" do
 
-      old_json = JSON['{
+      old_json_investment = JSON['{
         "investor": {
            "address":"24 Snoshu",
            "name":"Dino LLC",
@@ -47,7 +47,7 @@ describe WealthForge::Investment do
         "paymentType": "ACH"
       }']
 
-      response = WealthForge::Investment.create old_json
+      response = WealthForge::Investment.create old_json_investment
       pp JSON.parse response.env.body
       expect(response.status).not_to be_between(400, 600)
     end

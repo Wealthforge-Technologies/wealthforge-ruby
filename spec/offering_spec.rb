@@ -15,7 +15,7 @@ describe WealthForge::Offering do
     it "create OLD offering" do
 
       old_json = JSON['{
-        "issuer":"857355020872",
+        "issuer":"07c8a6db-66d7-4c97-a1e5-136f5957727e",
         "totalShare":1000000,
         "previouslyRaised":0,
         "minRaise":999999,

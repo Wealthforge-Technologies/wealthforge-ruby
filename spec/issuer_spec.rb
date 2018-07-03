@@ -22,6 +22,8 @@ describe WealthForge::Issuer do
         "busName": "LexShares",
         "accountingFirm": "Accountants, LLC",
         "founderName": "James Smith",
+        "firstName": "James",
+        "lastName": "Smith",
         "stateOfFormation": { "code": "MD" },
         "entityType":  { "code": "ENTITY_TYPE_LLC"},
         "founderTitle": "CEO",

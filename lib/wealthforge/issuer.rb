@@ -6,68 +6,104 @@ require 'pp'
 class WealthForge::Issuer
 
   def self.create(params = {})
-    newjson = old_to_new_create_issuer(params)
+    newjson = createIssuer(params)
     WealthForge::Connection.post "organizations", newjson
   end
 
-end
+  def self.createIssuer(old_json)
 
-
-
-
-private
-def old_to_new_create_issuer(old_json)
-
-  # {
-  #   "address": "124 Investor Way",
-  #   "city": "Boston",
-  #   "state": { "code": "VA" },
-  #   "zip": "02139",
-  #   "country": { "code": "US" },
-  #   "busName": "LexShares",
-  #   "accountingFirm": "Accountants, LLC",
-  #   "founderName": "James Smith",
-  #   "stateOfFormation": { "code": "MD" },
-  #   "entityType":  { "code": "ENTITY_TYPE_LLC"},
-  #   "founderTitle": "CEO",
-  #   "dateOfFormation": "2001-11-01",
-  #   "ein": "999999999",
-  #   "email": "wealthforge_api_test@mailinator.com",
-  #   "phone": "2125551234"
-  # }
-  wf_model = {
-    data: {
-      attributes: {
-        title: old_json['busName'],
-        orgType: 'ISSUER',
-        phone: old_json['phone'],
-        legalName: old_json['busName'], # NOTE: same as title
-        entityType: Enums::entity_type_enum[old_json['entityType']['code']],
-        stateOfIncorporation: old_json['stateOfFormation']['code'],
-        pointOfContactName: old_json['founderName'],
-        pointOfContactTitle: old_json['founderTitle'],
-        pointOfContactEmail: '',          # todo: hardcode -- what should it be?
-        bank: 'lexshares_bank',             # todo: hardcode???? -- will be an ID ???
-        ein: old_json['ein'],
-        address: {
-          street1: old_json['address'],
-          street2: old_json['address2'],
-          city: old_json['city'],
-          stateProv: old_json['state']['code'],
-          postalCode: old_json['zip'],
-          country: 'USA'
-        }
-      },
-      type: 'organization',
+    wf_model = {
+      data: {
+        attributes: {
+          address: {
+            city: nil,
+            country: nil,
+            postalCode: nil,
+            stateProv: nil,
+            street1: nil,
+            street2: nil
+        
+          },
+          bank: nil,
+          contact: {
+            emailAddress: nil,
+            firstName: nil,
+            lastName:nil,
+            phoneNumber: nil,
+            title: nil
+          },
+          ein: nil,
+          entityType: nil,
+          name: nil,
+          organizationType: nil,
+          phoneNumber: nil,
+          stateOfIncorporation: nil
+        },
+        type: "issuer"
+      }
     }
-  }
 
-  new_wf_request = JSON(wf_model)
-  wf_object = JSON.parse(new_wf_request, object_class: OpenStruct)
-  in_request = JSON(old_json)
-  in_object = JSON.parse(in_request, object_class: OpenStruct)
+    new_wf_request = JSON(wf_model)
+    in_request = JSON(old_json)
 
-  wf_object.data.attributes.address
+    wf_object = JSON.parse(new_wf_request, object_class: OpenStruct) 
+    in_object = JSON.parse(in_request, object_class: OpenStruct)
 
- return t
-end
+    attributes = wf_object.data.attributes 
+    wf_object.data.attributes = wfIssuer(attributes, in_object)
+    new_wf_request = WealthForge::Util.convertToJson wf_object
+    
+    return new_wf_request
+  end
+
+  #fills data.attribute.issuer
+  def self.wfIssuer(issuer, request)
+    pp "About to Fill Issuer!!!"
+  
+    issuer.bank = "N/A" #TODO: Address this before going live
+    issuer.ein = request.ein
+    issuer.entityType = wfConvertEntityType(request.entityType.code)
+    issuer.name = request.busName
+    issuer.organizationType = 'ISSUER'
+    issuer.phoneNumber = request.phone
+    issuer.stateOfIncorporation = request.stateOfFormation.code
+    
+    issuer.address = wfIssuerAddress(issuer.address, request)
+    issuer.contact = wfIssuerContact(issuer.contact, request)
+    return issuer
+  end
+
+  #fills data.attribute.issuer.contact
+  def self.wfIssuerContact(contact, request)
+    contact.emailAddress = request.email
+    contact.firstName = request.firstName
+    contact.lastName = request.lastName
+    contact.phoneNumber = request.phone
+    contact.title = request.founderTitle
+
+    return contact
+  end
+
+  #fills data.attribute.issuer.address
+  def self.wfIssuerAddress(address, request)
+    address.street1 = request.address
+    address.city = request.city
+    address.stateProv = request.state.code
+    address.postalCode = request.zip
+    address.country = request.country.code
+
+    return address
+  end
+
+  def self.wfConvertEntityType (type)
+    entity = {
+      "ENTITY_TYPE_CCOR" => "OTHER", 
+      "ENTITY_TYPE_LLC" => "LLC",
+      "ENTITY_TYPE_PART" => "PARTNERSHIP",
+      "ENTITY_TYPE_SCOR" => "OTHER", 
+      "ENTITY_TYPE_TRUST" => "TRUST"
+    }
+    return entity[type]
+  end
+
+end 

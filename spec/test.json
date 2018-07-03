@@ -1,36 +1,68 @@
+// {
+//     "investor": {
+//         "address": "24 Snoshu",
+//         "name": "Dino Simone",
+//         "firstName": "Dino",
+//         "lastName": "Simone",
+//         "state": "AK",
+//         "city": "Anchorage",
+//         "zip": "90001",
+//         "email": "dino.simone+alaska@lexshares.com",
+//         "investorType": "INDIVIDUAL",
+//         "investorSubType": null,
+//         "accreditation": "INCOME",
+//         "accredited": true,
+//         "phone": "123-123-1212",
+//         "investmentTimeline": null,
+//         "dob": "1980-01-01",
+//         "taxId": "000-00-0000",
+//         "investmentRisk": null,
+//         "status": "INVESTOR_ACTIVE",
+//         "logo": "http://none",
+//         "investorUrl": "http://none",
+//         "purchaseRepExists": false
+//     },
+//     "account": {
+//         "nacha": "WEB",
+//         "name": "Kelly Tester07",
+//         "routing": "123456789",
+//         "number": "12431424"
+//     },
+//     "investAmount": 75000,
+//     "amount": 75000,
+//     "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+//     "status": "INVESTMENT_PENDING",
+//     "paymentType": "WIRE"
+// }
 {
-    "investor": {
-        "address": "24 Snoshu",
-        "name": "Dino Simone",
-        "firstName": "Dino",
-        "lastName": "Simone",
-        "state": "AK",
-        "city": "Anchorage",
-        "zip": "90001",
-        "email": "dino.simone+alaska@lexshares.com",
-        "investorType": "INDIVIDUAL",
-        "investorSubType": null,
-        "accreditation": "INCOME",
-        "accredited": true,
-        "phone": "123-123-1212",
-        "investmentTimeline": null,
-        "dob": "1980-01-01",
-        "taxId": "000-00-0000",
-        "investmentRisk": null,
-        "status": "INVESTOR_ACTIVE",
-        "logo": "http://none",
-        "investorUrl": "http://none",
-        "purchaseRepExists": false
-    },
-    "account": {
-        "nacha": "WEB",
-        "name": "Kelly Tester07",
-        "routing": "123456789",
-        "number": "12431424"
-    },
-    "investAmount": 75000,
-    "amount": 75000,
-    "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
-    "status": "INVESTMENT_PENDING",
-    "paymentType": "WIRE"
+    :data=>
+    {
+        :attributes=>
+      {
+            :address=>
+        {
+                :city=>nil,
+                :country=>nil,
+                :postalCode=>nil,
+                :stateProv=>nil,
+                :street1=>nil,
+                :street2=>nil
+            },
+            :bank=>"N/A",
+            :contact=>
+        {
+                :emailAddress=>"wealthforge_api_test@mailinator.com",
+                :firstName=>"James Smith",
+                :lastName=>nil,
+                :phoneNumber=>"2125551234",
+                :title=>"CEO"
+            },
+            :ein=>"999999999",
+            :entityType=>nil,
+            :name=>"LexShares",
+            :organizationType=>"ISSUER",
+            :phoneNumber=>"2125551234",
+            :stateOfIncorporation=>"MD"
+        }
+    }
 }
