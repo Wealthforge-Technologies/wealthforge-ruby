@@ -10,26 +10,26 @@ class WealthForge::Investment
         WealthForge::Connection.post "subscriptions", new_request
     end
 
-    # lexshares will sometimes use this GET
-    def self.get(investment_id)
-        WealthForge::Connection.get "investment/#{investment_id}", nil
-    end
+    
+    # def self.get(investment_id)
+    #     WealthForge::Connection.get "investment/#{investment_id}", nil
+    # end
 
-    def self.create_subscription_agreement(investment_id, params)
-        # TODO: complete file upload
+    # def self.create_subscription_agreement(investment_id, params)
+    #     # TODO: complete file upload
 
-        mapped_params = {
-            status: {code: 'FILE_INPROGRESS', active: true},
-            mimeType: MIME::Types.type_for(params[:filename]).first.to_s,
-            folder: {parentFolder: {code: 'DUE_DILIGENCE'}},
-            fileName: params[:filename],
-            displayTitle: params[:filename],
-            content: Base64.strict_encode64(params[:file]),
-            parent: params[:parent]
-        }
+    #     mapped_params = {
+    #         status: {code: 'FILE_INPROGRESS', active: true},
+    #         mimeType: MIME::Types.type_for(params[:filename]).first.to_s,
+    #         folder: {parentFolder: {code: 'DUE_DILIGENCE'}},
+    #         fileName: params[:filename],
+    #         displayTitle: params[:filename],
+    #         content: Base64.strict_encode64(params[:file]),
+    #         parent: params[:parent]
+    #     }
 
-        WealthForge::Connection.put "investment/#{investment_id}/subscriptionAgreement", mapped_params
-    end
+    #     WealthForge::Connection.put "investment/#{investment_id}/subscriptionAgreement", mapped_params
+    # end
 
     def self.create_subscription(old_json)
         
@@ -161,7 +161,8 @@ class WealthForge::Investment
                 investor.signatory.title = request.signatory.title
                 investor.signatory.signatoryAuthority = request.signatory.signatoryAuthority
             else 
-                # signatory is required. Fill signatory with default if not given in request 
+                # signatory is required
+                # fill signatory with default if not given 
                 investor.signatory.firstName = request.firstName
                 investor.signatory.lastName = request.lastName
                 investor.signatory.dateOfBirth =request.dob
@@ -179,14 +180,14 @@ class WealthForge::Investment
             investor.dateOfBirth = request.dob
             investor.ssn = WealthForge::Util.format_tax_id (request.taxId)
 
-            #signatory not sent with individual type
+            # signatory not sent with individual type
             investor.signatory = nil
         end
 
         return investor
     end
 
-    #fill data.attributes.fundingMethods
+    # fill data.attributes.fundingMethods
     def self.wf_funding_method (request, fundingMethod)
         # # #  ====== load different payment method types of ACH or WIRE ====== # # #
         account = request.account
@@ -223,7 +224,7 @@ class WealthForge::Investment
         return fundingMethod
     end 
 
-    #fill data.attributes.Offering
+    # fill data.attributes.Offering
     def self.wf_offering_details (request, offering)
         offering.name = request.offeringName
         offering.securityType = request.securityType

@@ -6,11 +6,11 @@ require 'pp'
 class WealthForge::Issuer
 
   def self.create(params = {})
-    newjson = createIssuer(params)
+    newjson = create_issuer(params)
     WealthForge::Connection.post "organizations", newjson
   end
 
-  def self.createIssuer(old_json)
+  def self.create_issuer(old_json)
 
     wf_model = {
       data: {
@@ -50,31 +50,29 @@ class WealthForge::Issuer
     in_object = JSON.parse(in_request, object_class: OpenStruct)
 
     attributes = wf_object.data.attributes 
-    wf_object.data.attributes = wfIssuer(attributes, in_object)
-    new_wf_request = WealthForge::Util.convertToJson wf_object
+    wf_object.data.attributes = wf_issuer(attributes, in_object)
+    new_wf_request = WealthForge::Util.convert_to_json wf_object
     
     return new_wf_request
   end
 
-  #fills data.attribute.issuer
-  def self.wfIssuer(issuer, request)
-    pp "About to Fill Issuer!!!"
-  
-    issuer.bank = "N/A" #TODO: Address this before going live
+  # fills data.attribute.issuer
+  def self.wf_issuer(issuer, request)
+    issuer.bank = request.bank 
     issuer.ein = request.ein
-    issuer.entityType = wfConvertEntityType(request.entityType.code)
+    issuer.entityType = wf_convert_entity_type(request.entityType.code)
     issuer.name = request.busName
     issuer.organizationType = 'ISSUER'
     issuer.phoneNumber = request.phone
     issuer.stateOfIncorporation = request.stateOfFormation.code
     
-    issuer.address = wfIssuerAddress(issuer.address, request)
-    issuer.contact = wfIssuerContact(issuer.contact, request)
+    issuer.address = wf_issuer_address(issuer.address, request)
+    issuer.contact = wf_issuer_contact(issuer.contact, request)
     return issuer
   end
 
-  #fills data.attribute.issuer.contact
-  def self.wfIssuerContact(contact, request)
+  # fills data.attribute.issuer.contact
+  def self.wf_issuer_contact(contact, request)
     contact.emailAddress = request.email
     contact.firstName = request.firstName
     contact.lastName = request.lastName
@@ -85,7 +83,7 @@ class WealthForge::Issuer
   end
 
   #fills data.attribute.issuer.address
-  def self.wfIssuerAddress(address, request)
+  def self.wf_issuer_address(address, request)
     address.street1 = request.address
     address.city = request.city
     address.stateProv = request.state.code
@@ -95,7 +93,7 @@ class WealthForge::Issuer
     return address
   end
 
-  def self.wfConvertEntityType (type)
+  def self.wf_convert_entity_type (type)
     entity = {
       "ENTITY_TYPE_CCOR" => "OTHER", 
       "ENTITY_TYPE_LLC" => "LLC",

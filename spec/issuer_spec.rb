@@ -20,6 +20,7 @@ describe WealthForge::Issuer do
         "zip": "02139",
         "country": { "code": "US" },
         "busName": "LexShares",
+        "bank":"lexshares_bank",
         "accountingFirm": "Accountants, LLC",
         "founderName": "James Smith",
         "firstName": "James",
@@ -34,7 +35,7 @@ describe WealthForge::Issuer do
       }']
 
       response = WealthForge::Issuer.create old_json
-      pp response.env.body
+      # pp response.env.body
       expect(response.status).not_to be_between(400, 600)
       rj = JSON.parse(response.env.body)
       pp rj
