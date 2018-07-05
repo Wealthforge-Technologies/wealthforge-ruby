@@ -6,7 +6,7 @@ require 'ostruct'
 
 class WealthForge::Investment
     def self.create(params = {})
-        new_request = createSubscription(params)
+        new_request = create_subscription(params)
         WealthForge::Connection.post "subscriptions", new_request
     end
 
@@ -15,8 +15,9 @@ class WealthForge::Investment
         WealthForge::Connection.get "investment/#{investment_id}", nil
     end
 
-    def self.createSubscriptionAgreement(investment_id, params)
-        # todo: obie says we will probably just ask for the file. check with dino if thats ok or if they need these fields
+    def self.create_subscription_agreement(investment_id, params)
+        # TODO: complete file upload
+
         mapped_params = {
             status: {code: 'FILE_INPROGRESS', active: true},
             mimeType: MIME::Types.type_for(params[:filename]).first.to_s,
@@ -30,7 +31,7 @@ class WealthForge::Investment
         WealthForge::Connection.put "investment/#{investment_id}/subscriptionAgreement", mapped_params
     end
 
-    def self.createSubscription(old_json)
+    def self.create_subscription(old_json)
         
         wf_model = {
             data: {
@@ -83,14 +84,6 @@ class WealthForge::Investment
                             accountType:nil,
                             bankName: nil,
                             routingNumber: nil,
-                            address:{
-                                street1:nil,
-                                street2:nil,
-                                city:nil,
-                                state:nil,
-                                country:nil,
-                                postalCode:nil
-                            }, 
                             investmentAmount: nil,
                             numberOfShares: nil, 
                             numberOfNotes: nil,
@@ -115,82 +108,86 @@ class WealthForge::Investment
 
         #== hydrate wf_object with data from depreciated request
         wf_object.data.attributes.investAmount = in_object.amount     
-        wf_object.data.attributes.investors[0] = wfInvestor(in_object.investor, wf_object.data.attributes.investors[0])
-        wf_object.data.attributes.fundingMethods[0] = wfFundingMethod(in_object, wf_object.data.attributes.fundingMethods[0])
-        wf_object.data.attributes.Offering = wfOfferingDetails(in_object, wf_object.data.attributes.offering)
+        wf_object.data.attributes.investors[0] = wf_investor(in_object.investor, wf_object.data.attributes.investors[0])
+        wf_object.data.attributes.fundingMethods[0] = wf_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
+        wf_object.data.attributes.Offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
 
-        new_wf_request = WealthForge::Util.convertToJson wf_object
+        new_wf_request = WealthForge::Util.convert_to_json wf_object
 
+        # pp "******** SENT REQUEST: ***********"
+        pp new_wf_request
         return new_wf_request
     end
 
     #fill data.attributes.investors
-    def self.wfInvestor(request, investor)
+    def self.wf_investor(request, investor)
 
+        # fill common entity/individual common properties
         investor.accreditationType = request.accreditation
         investor.emailAddress = request.email
         investor.isPrimary = true
         investor.primaryPhone = request.phone
-        
-        #====== load different investor types ======
-        if request.investorType == 'ENTITY'
-            investor.investorType = request.investorType
-            investor.accountBusinessName = request.name
-            investor.investmentAmount = request.investAmount
-            investor.entityType = request.investorSubType
-            investor.dateOfBirth = request.dob
-            investor.name = request.name
-            investor.ein = WealthForge::Util.format_tax_id (request.taxId) #TODO: test for nil
+        investor.crdNumber = request.crdNumber
 
-            #== Fill signatory with default if not given in request
-            if request.signatory != nil 
-                investor.signatory.title = request.signatory.title
-                investor.signatory.address.city = request.signatory.city
-                investor.signatory.address.street1 = request.signatory.address
-                investor.signatory.address.stateProv = request.signatory.state
-                investor.signatory.address.postalCode = request.signatory.zip
-                investor.signatory.address.country = 'USA' 
-                investor.signatory.dateOfBirth =request.signatory.dob
-                investor.signatory.lastName = request.signatory.lastName
-                investor.signatory.firstName = request.signatory.firstName
-                investor.signatory.signatoryAuthority = request.signatory.signatoryAuthority
-                investor.signatory.ssn = WealthForge::Util.format_tax_id request.signatory.taxId
-            else 
-                #== Signatory is required. Fill signatory with default if not given in request 
-                investor.signatory.title = "N/A"
-                investor.signatory.address.city = request.city
-                investor.signatory.address.street1 = request.address
-                investor.signatory.address.stateProv = request.state
-                investor.signatory.address.postalCode = request.zip
-                investor.signatory.address.country = 'USA'
-                investor.signatory.dateOfBirth =request.dob
-                investor.signatory.lastName = request.lastName
-                investor.signatory.firstName = request.firstName
-                investor.signatory.signatoryAuthority = true
-                investor.signatory.ssn = WealthForge::Util.format_tax_id (request.taxId) 
-            end 
-
-        elsif request.investorType == 'INDIVIDUAL'
-            #== INDIVIDUAL
-            investor.investorType = 'INDIVIDUAL'
-            investor.firstName = request.firstName
-            investor.lastName = request.lastName
-            investor.dateOfBirth = request.dob
-            investor.ssn = WealthForge::Util.format_tax_id (request.taxId)
-        end
-
-        #== investor address
+        # investor address
         investor.address.street1 = request.address
         investor.address.city = request.city
         investor.address.stateProv = request.state
         investor.address.postalCode = request.zip
         investor.address.country = 'USA'
 
+        # since only one investor is sent it will always be primary
+        investor.isPrimary = true 
+
+        # load different investor types ENTITY / INDIVIDUAL
+        if request.investorType == 'ENTITY'
+            investor.investorType = request.investorType
+            investor.entityType = request.investorSubType # valid values are JOINT, LLC, TRUST, PARTNERSHIP or OTHER
+            investor.name = request.name
+            investor.ein = WealthForge::Util.format_tax_id (request.taxId)
+
+            # signatory required for ENTITY investorType
+            # fill signatory with default if not given in request
+            if request.signatory != nil 
+                investor.signatory.firstName = request.signatory.firstName
+                investor.signatory.lastName = request.signatory.lastName
+                investor.signatory.dateOfBirth =request.signatory.dob
+                investor.signatory.address.street1 = request.signatory.address
+                investor.signatory.address.city = request.signatory.city
+                investor.signatory.address.stateProv = request.signatory.state
+                investor.signatory.address.postalCode = request.signatory.zip
+                investor.signatory.address.country = 'USA' 
+                investor.signatory.ssn = WealthForge::Util.format_tax_id request.signatory.taxId
+                investor.signatory.title = request.signatory.title
+                investor.signatory.signatoryAuthority = request.signatory.signatoryAuthority
+            else 
+                # signatory is required. Fill signatory with default if not given in request 
+                investor.signatory.firstName = request.firstName
+                investor.signatory.lastName = request.lastName
+                investor.signatory.dateOfBirth =request.dob
+                investor.signatory.address.street1 = request.address
+                investor.signatory.address.city = request.city
+                investor.signatory.address.stateProv = request.state
+                investor.signatory.address.postalCode = request.zip
+                investor.signatory.address.country = 'USA'
+                investor.signatory.ssn = WealthForge::Util.format_tax_id (request.taxId) 
+                investor.signatory.title = "N/A"
+                investor.signatory.signatoryAuthority = true
+            end 
+        elsif request.investorType == 'INDIVIDUAL'
+            investor.investorType = 'INDIVIDUAL'
+            investor.dateOfBirth = request.dob
+            investor.ssn = WealthForge::Util.format_tax_id (request.taxId)
+
+            #signatory not sent with individual type
+            investor.signatory = nil
+        end
+
         return investor
     end
 
     #fill data.attributes.fundingMethods
-    def self.wfFundingMethod (request, fundingMethod)
+    def self.wf_funding_method (request, fundingMethod)
         # # #  ====== load different payment method types of ACH or WIRE ====== # # #
         account = request.account
         
@@ -198,7 +195,8 @@ class WealthForge::Investment
         when 'ACH'
             fundingMethod.accountNumber = account.number
 
-            #fill accountType with default value if not given
+            # fill accountType with default value if not given
+            # valid values are CHECKING or SAVINGS
             if account.bankAccountType != nil
                 fundingMethod.accountType = account.bankAccountType.upcase
             else
@@ -215,23 +213,8 @@ class WealthForge::Investment
             fundingMethod.paymentType = 'ACH'
             fundingMethod.routingNumber = account.routing
             fundingMethod.accountBusinessName = account.name
-            fundingMethod.accountFirstName = account.accountFirstName
-            fundingMethod.accountLastName = account.accountLastName
-
-            if account.address != nil
-                fundingMethod.address.street1 = account.address
-                fundingMethod.address.city = account.city
-                fundingMethod.address.stateProv = account.state
-                fundingMethod.address.postalCode = account.zip
-                fundingMethod.address.country = 'USA'
-            else
-                # ask BD for valid values
-                fundingMethod.address.street1 = 'N/A'
-                fundingMethod.address.city = 'N/A'
-                fundingMethod.address.stateProv = 'N/A'
-                fundingMethod.address.postalCode = 99999
-                fundingMethod.address.country = 'USA'
-            end
+            fundingMethod.accountFirstName = account.firstName
+            fundingMethod.accountLastName = account.lastName
         when 'WIRE'
             fundingMethod.paymentType = 'WIRE'
         end
@@ -241,7 +224,7 @@ class WealthForge::Investment
     end 
 
     #fill data.attributes.Offering
-    def self.wfOfferingDetails (request, offering)
+    def self.wf_offering_details (request, offering)
         offering.name = request.offeringName
         offering.securityType = request.securityType
         offering.id = request.offerDetail

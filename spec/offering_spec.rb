@@ -13,7 +13,6 @@ describe WealthForge::Offering do
 
 
     it "create OLD offering" do
-
       old_json = JSON['{
         "issuer":"07c8a6db-66d7-4c97-a1e5-136f5957727e",
         "totalShare":1000000,
@@ -30,7 +29,8 @@ describe WealthForge::Offering do
                 "postMoneyValuation":1000000,
                 "offerDetailType":"EQUITY",
                 "instrumentType":"SHARE_COMMON",
-                "regulationType":"MEMO_EQUITY_D506C"
+                "regulationType":"MEMO_EQUITY_D506C",
+                "paymentMethods": ["ACH", "WIRE"]
             }
         ],
         "status":"OFFERING_PENDING",

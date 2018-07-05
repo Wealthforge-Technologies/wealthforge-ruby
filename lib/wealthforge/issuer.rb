@@ -1,4 +1,4 @@
-require_relative './enums'
+# require_relative './enums'
 require 'json'
 require 'pp'
 

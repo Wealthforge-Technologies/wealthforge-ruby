@@ -1,6 +1,8 @@
 {
-  "wf_cert": "",
-  "wf_key": "",
-  "environment": "local",
+  "wf_client_id": "",
+  "wf_client_secret": "",
+  "environment": "",
+  "api_url": "",
+  "token_url": "",
   "COMMENT": "these are from WealthForge. Create a file named config.json"
-}
+ }

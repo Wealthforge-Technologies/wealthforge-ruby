@@ -1,5 +1,5 @@
 require 'json'
-require_relative './enums'
+# require_relative './enums'
 
 class WealthForge::Offering
   def self.create(params)
@@ -58,7 +58,7 @@ class WealthForge::Offering
       offering.minimumRaise = WealthForge::Util.wfCurrency(request.offerDetails[0].minRaise)
       offering.maximumRaise = WealthForge::Util.wfCurrency(request.offerDetails[0].maxRaise)
       offering.minimumInvestment = WealthForge::Util.wfCurrency(request.offerDetails[0].minInvestment)
-      offering.paymentMethods = ["ACH", "WIRE"] 
+      offering.paymentMethods = request.offerDetails[0].paymentMethods
       offering.status = "PENDING_REVIEW"
       offering.securityTypes[0] = wfSecurityType(offering.securityTypes[0], request)
 

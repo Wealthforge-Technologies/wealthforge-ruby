@@ -9,28 +9,13 @@ require 'pp'
 class WealthForge::Connection
 
   def initialize()
-    @wf_key
-    @wf_cert
-    @wf_token
   end
-
+  
 
   def self.post(endpoint, params)
-
-    # try to make the call
-    begin
-      response = connection.post do |req|
-        req.url endpoint
-        req.headers['Content-Type'] = 'application/json'
-        req.body = prep_params(params)
-      end
-    rescue => e
-      # if failed then probably a 401 error so go get auth but dont raise error
-      retrieve_authorization
-    end
-
     # try again with auth
     begin
+      retrieve_authorization
       response = connection.post do |req|
         req.url endpoint
         req.headers['Content-Type'] = 'application/json'
@@ -41,7 +26,6 @@ class WealthForge::Connection
     end
 
     return response
-
   end
 
 
@@ -82,34 +66,9 @@ class WealthForge::Connection
   end
 
 
-  def self.api_endpoint
-    api_endpoint = ''
-
-    unless WealthForge.configuration.environment.nil?
-      case WealthForge.configuration.environment
-        when 'local'
-          api_endpoint = "http://localhost:4000/#{WealthForge.configuration.version}/"
-        when 'ci'
-          api_endpoint = "https://ci.wealthforge.org/wfh-api/#{WealthForge.configuration.version}/"
-        when 'qa1'
-          api_endpoint = "https://api.wealthforge.org/#{WealthForge.configuration.version}/"
-        when 'stage'
-          api_endpoint = '__TODO__' #TODO
-        when 'prod'
-          api_endpoint = '__TODO__' #TODO
-        else
-          puts '__ERROR__: Invalid environment in configuration'
-      end
-    end
-    return api_endpoint
-
-  end
-
-
   def self.connection
 
-    # pp api_endpoint
-    return Faraday.new(:url => api_endpoint) do |faraday|
+    return Faraday.new(:url => @api_endpoint) do |faraday|
       faraday.request :url_encoded
       faraday.headers['Authorization'] = @wf_token
       faraday.adapter Faraday.default_adapter
@@ -122,19 +81,8 @@ class WealthForge::Connection
 
   def self.retrieve_token
 
-    if WealthForge.configuration.environment == 'local'
-      # local creds are retrieved from ci
-      auth_url =  "https://ci.wealthforge.org/wfh-api/#{WealthForge.configuration.version}/"
-      #auth_url = "https://api.wealthforge.org/v1/auth/tokens"
-    else
-      auth_url = api_endpoint
-    end
-
     bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_client_id}\",\"clientSecret\":\"#{@wf_client_secret}\"},\"type\":\"token\"}}"
-
-    # pp bod
-    auth = Faraday.new.post(auth_url + 'auth/tokens') do |faraday|
-    #cert = Faraday.new.post(auth_url) do |faraday|
+    auth = Faraday.new.post(@token_url) do |faraday|
       faraday.body = bod
     end.body
 
@@ -156,10 +104,17 @@ class WealthForge::Connection
     if config_data['wf_client_id'].nil? || config_data['wf_client_secret'].nil?
       p '__ERROR__ Please verify the key and cert are in configs/config.json'
     else
+      # set config variables 
       @wf_client_id = config_data['wf_client_id']
       @wf_client_secret = config_data['wf_client_secret']
+      @token_url = config_data['token_url']
+      @api_endpoint = config_data['api_url']
+      @environment = config_data['environment']
+      @version = 'v1'
+
+      # makes a call to get a current token
+      @wf_token = retrieve_token
     end
-    @wf_token = retrieve_token
   end
 
 end
