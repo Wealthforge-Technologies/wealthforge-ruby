@@ -35,10 +35,8 @@ describe WealthForge::Issuer do
       }']
 
       response = WealthForge::Issuer.create old_json
-      # pp response.env.body
       expect(response.status).not_to be_between(400, 600)
-      rj = JSON.parse(response.env.body)
-      pp rj
+      pp JSON.parse response.env.body
 
       end
 

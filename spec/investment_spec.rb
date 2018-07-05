@@ -48,7 +48,7 @@ describe WealthForge::Investment do
         "paymentType": "ACH"
       }']
     
-      # entity with all funding properties
+      # entity with all FundingMethod properties
       # note with entity only the name of entity is set
       old_json_investment_entity_funding_ach = JSON['{
         "investor": {
@@ -112,11 +112,10 @@ describe WealthForge::Investment do
         "paymentType": "WIRE"
       }']
 
-      # individual with all funding properties
+      # individual with all FundingMethod properties
       old_json_investment_individual_funding = JSON['{
         "investor": {
            "address":"24 Snoshu",
-           "name":"Dino LLC",
            "firstName":"David",
            "lastName":"Smith",
            "state":"AK",
@@ -196,13 +195,13 @@ describe WealthForge::Investment do
       # pp JSON.parse response.env.body
       # expect(response.status).not_to be_between(400, 600)
 
-      response = WealthForge::Investment.create old_json_investment_signatory
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
-
-      # response = WealthForge::Investment.create old_json_investment_individual_funding
+      # response = WealthForge::Investment.create old_json_investment_signatory
       # pp JSON.parse response.env.body
       # expect(response.status).not_to be_between(400, 600)
+
+      response = WealthForge::Investment.create old_json_investment_individual_funding
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
 
       # response = WealthForge::Investment.create old_json_investment_entity_funding_ach
       # pp JSON.parse response.env.body

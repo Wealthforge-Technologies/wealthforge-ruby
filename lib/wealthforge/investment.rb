@@ -177,6 +177,8 @@ class WealthForge::Investment
             end 
         elsif request.investorType == 'INDIVIDUAL'
             investor.investorType = 'INDIVIDUAL'
+            investor.firstName = request.firstName
+            investor.lastName = request.lastName
             investor.dateOfBirth = request.dob
             investor.ssn = WealthForge::Util.format_tax_id (request.taxId)
 

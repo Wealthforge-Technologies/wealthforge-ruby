@@ -30,7 +30,8 @@ describe WealthForge::Offering do
                 "offerDetailType":"EQUITY",
                 "instrumentType":"SHARE_COMMON",
                 "regulationType":"MEMO_EQUITY_D506C",
-                "paymentMethods": ["ACH", "WIRE"]
+                "paymentMethods": ["ACH", "WIRE"],
+                "title": "The ABC Offering"
             }
         ],
         "status":"OFFERING_PENDING",
