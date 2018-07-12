@@ -35,7 +35,6 @@ describe WealthForge::Investment do
            "status":"INVESTOR_ACTIVE"
         },
         "account": {
-            "nacha":"WEB",
             "name":"Kelly Tester07",
             "routing":"123456789",
             "number":"12431424"
@@ -70,7 +69,7 @@ describe WealthForge::Investment do
            "status":"INVESTOR_ACTIVE"
         },
         "account": {
-            "nacha":"WEB",
+     
             "name":"Dino LLC",
             "routing":"123456789",
             "number":"12431424",
@@ -191,25 +190,25 @@ describe WealthForge::Investment do
           "paymentType": "ACH"
         }']
 
-      # response = WealthForge::Investment.create old_json_investment_entity
-      # pp JSON.parse response.env.body
-      # expect(response.status).not_to be_between(400, 600)
+      response = WealthForge::Investment.create old_json_investment_entity
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
 
-      # response = WealthForge::Investment.create old_json_investment_signatory
-      # pp JSON.parse response.env.body
-      # expect(response.status).not_to be_between(400, 600)
+      response = WealthForge::Investment.create old_json_investment_signatory
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
 
       response = WealthForge::Investment.create old_json_investment_individual_funding
       pp JSON.parse response.env.body
       expect(response.status).not_to be_between(400, 600)
 
-      # response = WealthForge::Investment.create old_json_investment_entity_funding_ach
-      # pp JSON.parse response.env.body
-      # expect(response.status).not_to be_between(400, 600)
+      response = WealthForge::Investment.create old_json_investment_entity_funding_ach
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
 
-      # response = WealthForge::Investment.create old_json_investment_entity_funding_wire
-      # pp JSON.parse response.env.body
-      # expect(response.status).not_to be_between(400, 600)
+      response = WealthForge::Investment.create old_json_investment_entity_funding_wire
+      pp JSON.parse response.env.body
+      expect(response.status).not_to be_between(400, 600)
 
 
 
