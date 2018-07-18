@@ -55,7 +55,7 @@ class WealthForge::Connection
     return if params.nil?
     wf_params = {}
     params.each do |key, value|
-      wf_params[key.to_s.camelize(:lower)] = value
+      wf_params[key.to_s.downcase] = value
     end
     wf_params.to_json
   end
