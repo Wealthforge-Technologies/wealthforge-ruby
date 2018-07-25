@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   
   spec.add_runtime_dependency "faraday", "~> 0.12.0.1"
   spec.add_runtime_dependency "mime-types", "~> 3.1"
+  spec.add_runtime_dependency "jwt", "2.1.0"
 
   spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
