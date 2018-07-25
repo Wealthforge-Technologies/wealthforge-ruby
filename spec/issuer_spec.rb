@@ -31,13 +31,13 @@ describe WealthForge::Issuer do
         "dateOfFormation": "2001-11-01",
         "ein": "999999999",
         "email": "wealthforge_api_test@mailinator.com",
-        "phone": "2125551234"
+        "phone": "2125551234",
+        "sponsor": "00000000-0000-0000-0000-000000000000"
       }']
 
       response = WealthForge::Issuer.create old_json
-      expect(response.status).not_to be_between(400, 600)
-      pp JSON.parse response.env.body
-
+      pp response
+      expect(response['errors']).to eq nil
       end
 
 

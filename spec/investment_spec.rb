@@ -190,31 +190,44 @@ describe WealthForge::Investment do
           "paymentType": "ACH"
         }']
 
-      response = WealthForge::Investment.create old_json_investment_entity
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      # response = WealthForge::Investment.create old_json_investment_entity
+      # pp response
+      # expect(response['errors']).to eq nil
 
-      response = WealthForge::Investment.create old_json_investment_signatory
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      # response = WealthForge::Investment.create old_json_investment_signatory
+      # pp response
+      # expect(response['errors']).to eq nil
 
-      response = WealthForge::Investment.create old_json_investment_individual_funding
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      # response = WealthForge::Investment.create old_json_investment_individual_funding
+      # pp response
+      # expect(response['errors']).to eq nil
 
-      response = WealthForge::Investment.create old_json_investment_entity_funding_ach
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      # response = WealthForge::Investment.create old_json_investment_entity_funding_ach
+      # pp response
+      # expect(response['errors']).to eq nil
 
-      response = WealthForge::Investment.create old_json_investment_entity_funding_wire
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      # response = WealthForge::Investment.create old_json_investment_entity_funding_wire
+      # pp response
+      # expect(response['errors']).to eq nil
 
+      # Get Investment by ID
+      subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
+      response = WealthForge::Investment.get subscription_id
+      pp response
+      expect(response['errors']).to eq nil
+
+
+      #example of error response 
+      # subscription_id = "00000000-0000-0000-0000-000000000000"
+      # response = WealthForge::Investment.get subscription_id
+      # pp "example of error response"
+      # pp response
+      # expect(response['errors']).to eq nil
 
 
     end
 
-  
+
   # Doc upload
   #   it "create subscription agreement" do
   #     params = {

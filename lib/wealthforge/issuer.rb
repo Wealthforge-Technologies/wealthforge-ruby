@@ -7,7 +7,7 @@ class WealthForge::Issuer
 
   def self.create(params = {})
     newjson = create_issuer(params)
-    WealthForge::Connection.post "organizations", newjson
+    WealthForge::Connection.post "issuers", newjson
   end
 
   def self.create_issuer(old_json)
@@ -37,7 +37,8 @@ class WealthForge::Issuer
           name: nil,
           organizationType: nil,
           phoneNumber: nil,
-          stateOfIncorporation: nil
+          stateOfIncorporation: nil,
+          sponsorID: nil
         },
         type: "issuer"
       }
@@ -65,6 +66,7 @@ class WealthForge::Issuer
     issuer.organizationType = 'ISSUER'
     issuer.phoneNumber = request.phone
     issuer.stateOfIncorporation = request.stateOfFormation.code
+    issuer.sponsorID = request.sponsor 
     
     issuer.address = wf_issuer_address(issuer.address, request)
     issuer.contact = wf_issuer_contact(issuer.contact, request)

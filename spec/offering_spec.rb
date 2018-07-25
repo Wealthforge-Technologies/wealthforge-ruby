@@ -11,7 +11,6 @@ describe WealthForge::Offering do
       end
     end
 
-
     it "create OLD offering" do
       old_json = JSON['{
         "issuer":"07c8a6db-66d7-4c97-a1e5-136f5957727e",
@@ -39,12 +38,10 @@ describe WealthForge::Offering do
         "dateEnd":"2020-05-06"
       }']
 
-
-
       # VCR.use_cassette 'create_offering', record: :none do
       response = WealthForge::Offering.create old_json
-      pp JSON.parse response.env.body
-      expect(response.status).not_to be_between(400, 600)
+      pp response
+      expect(response['errors']).to eq nil
       # end
     end
 
@@ -58,11 +55,6 @@ describe WealthForge::Offering do
     #   # expect(response[:errors].length).to eq 0
     #   # end
     # end
-
-
-
-
-
 
   end
 end

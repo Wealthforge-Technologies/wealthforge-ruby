@@ -10,10 +10,11 @@ class WealthForge::Investment
         WealthForge::Connection.post "subscriptions", new_request
     end
 
-    
-    # def self.get(investment_id)
-    #     WealthForge::Connection.get "investment/#{investment_id}", nil
-    # end
+    def self.get(investment_id)
+        WealthForge::Connection.get "subscriptions/#{investment_id}", nil
+    end
+
+
 
     # def self.create_subscription_agreement(investment_id, params)
     #     # TODO: complete file upload
@@ -114,8 +115,6 @@ class WealthForge::Investment
 
         new_wf_request = WealthForge::Util.convert_to_json wf_object
 
-        # pp "******** SENT REQUEST: ***********"
-        pp new_wf_request
         return new_wf_request
     end
 
