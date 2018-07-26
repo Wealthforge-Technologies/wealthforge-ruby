@@ -40,9 +40,6 @@ describe WealthForge::Issuer do
       expect(response['errors']).to eq nil
       end
 
-
-
-
     # it "get issuer" do
     #   VCR.use_cassette 'get_issuer', record: :all do
     #     response = WealthForge::Issuer.get "cc8033ee-cbd9-41b3-a02b-d4aa922a9829"

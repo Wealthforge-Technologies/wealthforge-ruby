@@ -39,6 +39,22 @@ class WealthForge::Connection
     return json_body
   end
 
+  def self.file_upload (endpoint, file_path)
+    payload = { :file => Faraday::UploadIO.new(file_path, 'application/pdf') }
+    
+    begin
+    response = connection.post do |req|
+       req.url endpoint
+       req.body = payload
+    end
+    rescue => e
+    raise WealthForge::ApiException.new(e)
+    end
+ 
+    json_body = JSON.parse(response.body)
+    return json_body
+  end
+
 
   def self.prep_params(params)
     return if params.nil?
@@ -65,16 +81,18 @@ class WealthForge::Connection
     decoded_token = JWT.decode t, nil, false
     token_exp = decoded_token[0]['exp']
     leeway = 60
-    token_window = Time.now.to_i - leeway 
-    refresh_token = !(token_exp > token_window)
+    now = Time.now.to_i 
+    token_window = token_exp - leeway 
+    refresh_token = !(token_window > now)
    
-    if refresh_token = true
+    if refresh_token == true
        # makes a call to get a new token
       @wf_token = retrieve_token
     end 
 
     return Faraday.new(:url => @api_url) do |faraday|
       faraday.request :url_encoded
+      faraday.request :multipart
       faraday.headers['Authorization'] = @wf_token
       faraday.adapter Faraday.default_adapter
       faraday.use CustomErrors

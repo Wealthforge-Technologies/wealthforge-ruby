@@ -14,7 +14,9 @@ class WealthForge::Investment
         WealthForge::Connection.get "subscriptions/#{investment_id}", nil
     end
 
-
+    def self.file_upload(file_path)
+        WealthForge::Connection.file_upload "files", file_path
+    end
 
     # def self.create_subscription_agreement(investment_id, params)
     #     # TODO: complete file upload

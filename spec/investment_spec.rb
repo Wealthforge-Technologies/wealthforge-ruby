@@ -190,25 +190,25 @@ describe WealthForge::Investment do
           "paymentType": "ACH"
         }']
 
-      # response = WealthForge::Investment.create old_json_investment_entity
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_entity
+      pp response
+      expect(response['errors']).to eq nil
 
-      # response = WealthForge::Investment.create old_json_investment_signatory
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_signatory
+      pp response
+      expect(response['errors']).to eq nil
 
-      # response = WealthForge::Investment.create old_json_investment_individual_funding
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_individual_funding
+      pp response
+      expect(response['errors']).to eq nil
 
-      # response = WealthForge::Investment.create old_json_investment_entity_funding_ach
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_entity_funding_ach
+      pp response
+      expect(response['errors']).to eq nil
 
-      # response = WealthForge::Investment.create old_json_investment_entity_funding_wire
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_entity_funding_wire
+      pp response
+      expect(response['errors']).to eq nil
 
       # Get Investment by ID
       subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
@@ -224,24 +224,30 @@ describe WealthForge::Investment do
       # pp response
       # expect(response['errors']).to eq nil
 
+      file = "#{Dir.pwd}/spec/files/test_file.pdf"
+      response = WealthForge::Investment.file_upload file
+      pp response
+      r = JSON.parse response.to_s
+      pp r
+      # expect(response['errors']).to eq nil
 
     end
 
 
   # Doc upload
   #   it "create subscription agreement" do
-  #     params = {
-  #       file: open("#{Dir.pwd}/spec/files/test_file.pdf") 
-  #       {|f| f.read},
-	#       filename: "new-file.pdf",
-  #       remote_investment: @investment_id,
-	#       parent: "d8cd4024-46aa-4858-9ff1-b10961ec6186",
-  #     }
-  #     VCR.use_cassette 'create_subscription_agreement', record: :none do
-  #       response = WealthForge::Investment.create_subscription_agreement @investment_id, params expect(response[:data][:status][:code]).to eq "FILE_INPROGRESS"
-  #     end
+  #     # params = {
+  #     #   file: open("#{Dir.pwd}/spec/files/test_file.pdf") 
+  #     #   {|f| f.read},
+	#     #   filename: "new-file.pdf",
+  #     #   remote_investment: @investment_id,
+	#     #   parent: "d8cd4024-46aa-4858-9ff1-b10961ec6186",
+  #     # }
+  #     response = WealthForge::Investment.file_upload
+  #     # VCR.use_cassette 'create_subscription_agreement', record: :none do
+  #       # response = WealthForge::Investment.create_subscription_agreement @investment_id, params expect(response[:data][:status][:code]).to eq "FILE_INPROGRESS"
+  #     # end
   #   end
   # end
-
-end
+  end
 end
