@@ -10,12 +10,12 @@ class WealthForge::Investment
         WealthForge::Connection.post "subscriptions", new_request
     end
 
-    def self.get(investment_id)
-        WealthForge::Connection.get "subscriptions/#{investment_id}", nil
+    def self.get(subscription_id)
+        WealthForge::Connection.get "subscriptions/#{subscription_id}", nil
     end
 
-    def self.file_upload(file_path)
-        WealthForge::Connection.file_upload "files", file_path
+    def self.file_upload(file_path, subscription_id)
+          WealthForge::Connection.file_upload "files/#{subscription_id}", file_path
     end
 
     # def self.create_subscription_agreement(investment_id, params)

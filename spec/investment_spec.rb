@@ -217,7 +217,7 @@ describe WealthForge::Investment do
       expect(response['errors']).to eq nil
 
 
-      #example of error response 
+      # example of error response 
       # subscription_id = "00000000-0000-0000-0000-000000000000"
       # response = WealthForge::Investment.get subscription_id
       # pp "example of error response"
@@ -225,10 +225,9 @@ describe WealthForge::Investment do
       # expect(response['errors']).to eq nil
 
       file = "#{Dir.pwd}/spec/files/test_file.pdf"
-      response = WealthForge::Investment.file_upload file
-      pp response
-      r = JSON.parse response.to_s
-      pp r
+      subscription_id = "00000000-0000-0000-0000-000000000000"
+      response = WealthForge::Investment.file_upload file, subscription_id
+  
       # expect(response['errors']).to eq nil
 
     end

@@ -40,10 +40,11 @@ class WealthForge::Connection
   end
 
   def self.file_upload (endpoint, file_path)
-    payload = { :file => Faraday::UploadIO.new(file_path, 'application/pdf') }
-    
+    mime_type = MIME::Types.type_for(file_path).first.to_s
+    payload = { :file => Faraday::UploadIO.new(file_path, mime_type) }
+    pp endpoint
     begin
-    response = connection.post do |req|
+    response = connection_multipart.post do |req|
        req.url endpoint
        req.body = payload
     end
@@ -67,8 +68,27 @@ class WealthForge::Connection
 
 
   def self.connection
+    set_token
+    return Faraday.new(:url => @api_url) do |faraday|
+      faraday.request :url_encoded
+      faraday.headers['Authorization'] = @wf_token
+      faraday.adapter Faraday.default_adapter
+      faraday.use CustomErrors
+    end
+  end
+
+  def self.connection_multipart
+    set_token
+    return Faraday.new(:url => @api_url) do |faraday|
+      faraday.request :multipart
+      faraday.headers['Authorization'] = @wf_token
+      faraday.adapter Faraday.default_adapter
+      faraday.use CustomErrors
+    end
+  end
+
+  def self.set_token 
     if @wf_token == nil 
-  
       @wf_client_id = ENV["CLIENT_ID"]
       @wf_client_secret = ENV["CLIENT_SECRET"]
       @api_url = ENV["API_URL"]
@@ -89,16 +109,7 @@ class WealthForge::Connection
        # makes a call to get a new token
       @wf_token = retrieve_token
     end 
-
-    return Faraday.new(:url => @api_url) do |faraday|
-      faraday.request :url_encoded
-      faraday.request :multipart
-      faraday.headers['Authorization'] = @wf_token
-      faraday.adapter Faraday.default_adapter
-      faraday.use CustomErrors
-    end
-
-  end
+  end 
 
   def self.retrieve_token
     bod = "{\"data\":{\"attributes\":{\"clientId\":\"#{@wf_client_id}\",\"clientSecret\":\"#{@wf_client_secret}\"},\"type\":\"token\"}}"
