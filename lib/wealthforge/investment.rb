@@ -98,6 +98,10 @@ class WealthForge::Investment
                         id: nil, 
                         name: nil, 
                         securityType: nil
+                    },
+                    stash: {
+                        field1: nil,
+                        field2: nil
                     }
                 },
                 type: "subscription"
@@ -113,7 +117,11 @@ class WealthForge::Investment
         wf_object.data.attributes.investAmount = in_object.amount     
         wf_object.data.attributes.investors[0] = wf_investor(in_object.investor, wf_object.data.attributes.investors[0])
         wf_object.data.attributes.fundingMethods[0] = wf_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
-        wf_object.data.attributes.Offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
+        wf_object.data.attributes.offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
+
+        pp  wf_object.data.attributes.stash 
+
+        wf_object.data.attributes.stash = in_object.stash  
 
         new_wf_request = WealthForge::Util.convert_to_json wf_object
 

@@ -42,7 +42,6 @@ class WealthForge::Connection
   def self.file_upload (endpoint, file_path)
     mime_type = MIME::Types.type_for(file_path).first.to_s
     payload = { :file => Faraday::UploadIO.new(file_path, mime_type) }
-    pp endpoint
     begin
     response = connection_multipart.post do |req|
        req.url endpoint

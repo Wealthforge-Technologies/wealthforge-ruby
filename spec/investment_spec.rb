@@ -187,7 +187,11 @@ describe WealthForge::Investment do
           "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
           "offeringName": "ACB LLC",
           "status": "INVESTMENT_PENDING",
-          "paymentType": "ACH"
+          "paymentType": "ACH",
+          "stash": {
+            "field1":"field1",
+            "field2":"field2"
+          }
         }']
 
       response = WealthForge::Investment.create old_json_investment_entity
