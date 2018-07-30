@@ -191,13 +191,20 @@ describe WealthForge::Investment do
           "stash": {
             "field1":"field1",
             "field2":"field2"
-          }
+          },
+          "suitabilityQuestion":[{
+            "answerKeys":[
+              "b"
+          ],
+          "questionKey":"Experience"
+          }]
         }']
 
       response = WealthForge::Investment.create old_json_investment_entity
       pp response
       expect(response['errors']).to eq nil
 
+      # example with suitability and stash
       response = WealthForge::Investment.create old_json_investment_signatory
       pp response
       expect(response['errors']).to eq nil

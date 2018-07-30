@@ -102,7 +102,13 @@ class WealthForge::Investment
                     stash: {
                         field1: nil,
                         field2: nil
-                    }
+                    },
+                    suitabilityQuestions:[
+                        answerKeys:[
+                            nil
+                        ],
+                        questionKey: nil
+                    ]
                 },
                 type: "subscription"
             }
@@ -118,13 +124,13 @@ class WealthForge::Investment
         wf_object.data.attributes.investors[0] = wf_investor(in_object.investor, wf_object.data.attributes.investors[0])
         wf_object.data.attributes.fundingMethods[0] = wf_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
         wf_object.data.attributes.offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
+        wf_object.data.attributes.suitabilityQuestions = wf_suitability_questions(in_object, wf_object.data.attributes.suitabilityQuestions)
 
-        pp  wf_object.data.attributes.stash 
-
+        #stash allows for the storage of custom fields in the form of JSON 
         wf_object.data.attributes.stash = in_object.stash  
-
         new_wf_request = WealthForge::Util.convert_to_json wf_object
 
+    
         return new_wf_request
     end
 
@@ -241,5 +247,20 @@ class WealthForge::Investment
         offering.securityType = request.securityType
         offering.id = request.offerDetail
         return offering
+    end
+
+    def self.wf_suitability_questions(request, suitability_questions)
+        if request.suitabilityQuestion == nil 
+            return nil 
+        end 
+
+        request.suitabilityQuestion.each_with_index do |question_set, index|
+            suitability_questions[index].questionKey = question_set.questionKey
+            question_set.answerKeys.each_with_index do |answer, index|
+                suitability_questions[index].answerKeys[index] = answer
+            end
+        end
+    
+        return suitability_questions
     end
 end
