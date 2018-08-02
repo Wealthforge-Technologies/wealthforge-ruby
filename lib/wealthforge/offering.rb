@@ -37,13 +37,13 @@ class WealthForge::Offering
     in_object = JSON.parse(in_request, object_class: OpenStruct)
 
     attributes = wf_object.data.attributes 
-    wf_object.data.attributes = wfOffering(attributes, in_object)
+    wf_object.data.attributes = wf_offering(attributes, in_object)
     new_wf_request = WealthForge::Util.convert_to_json wf_object
     
     return new_wf_request
   end 
  
-  def self.wfOffering (offering, request)
+  def self.wf_offering (offering, request)
 
       offering.issuerId = request.issuer
       offering.offeringType = wf_offering_type(request.offerDetails[0].regulationType)
@@ -57,6 +57,7 @@ class WealthForge::Offering
       offering.securityTypes[0] = wf_security_type(offering.securityTypes[0], request)
       offering.title = request.offerDetails[0].title
 
+      pp offering
       return offering
     end 
     

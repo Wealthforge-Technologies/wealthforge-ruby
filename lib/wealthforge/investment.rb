@@ -120,7 +120,7 @@ class WealthForge::Investment
         in_object = JSON.parse(in_request, object_class: OpenStruct)
 
         #== hydrate wf_object with data from depreciated request
-        wf_object.data.attributes.investAmount = in_object.amount     
+        wf_object.data.attributes.investmentAmount = in_object.amount.to_s 
         wf_object.data.attributes.investors[0] = wf_investor(in_object.investor, wf_object.data.attributes.investors[0])
         wf_object.data.attributes.fundingMethods[0] = wf_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
         wf_object.data.attributes.offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
@@ -129,7 +129,8 @@ class WealthForge::Investment
         #stash allows for the storage of custom fields in the form of JSON 
         wf_object.data.attributes.stash = in_object.stash  
         new_wf_request = WealthForge::Util.convert_to_json wf_object
-
+        
+        # pp wf_object.data.attributes.investors
     
         return new_wf_request
     end
@@ -146,6 +147,7 @@ class WealthForge::Investment
 
         # investor address
         investor.address.street1 = request.address
+        investor.address.street2 = request.address2
         investor.address.city = request.city
         investor.address.stateProv = request.state
         investor.address.postalCode = request.zip
@@ -168,6 +170,7 @@ class WealthForge::Investment
                 investor.signatory.lastName = request.signatory.lastName
                 investor.signatory.dateOfBirth =request.signatory.dob
                 investor.signatory.address.street1 = request.signatory.address
+                investor.signatory.address.street2 = request.signatory.address2
                 investor.signatory.address.city = request.signatory.city
                 investor.signatory.address.stateProv = request.signatory.state
                 investor.signatory.address.postalCode = request.signatory.zip
@@ -182,6 +185,7 @@ class WealthForge::Investment
                 investor.signatory.lastName = request.lastName
                 investor.signatory.dateOfBirth =request.dob
                 investor.signatory.address.street1 = request.address
+                investor.signatory.address.street2 = request.address2
                 investor.signatory.address.city = request.city
                 investor.signatory.address.stateProv = request.state
                 investor.signatory.address.postalCode = request.zip
@@ -253,14 +257,25 @@ class WealthForge::Investment
         if request.suitabilityQuestion == nil 
             return nil 
         end 
+        
+        suitability_questions = Array.new(request.suitabilityQuestion.size)
 
+        questions = Array.new(request.suitabilityQuestion.size)
         request.suitabilityQuestion.each_with_index do |question_set, index|
-            suitability_questions[index].questionKey = question_set.questionKey
+            
+            questions[index] = question_set.questionKey
+            answers = Array.new(question_set.answerKeys.size)
             question_set.answerKeys.each_with_index do |answer, index|
-                suitability_questions[index].answerKeys[index] = answer
+                answers[index] = answer
             end
+
+            sq = OpenStruct.new
+            sq.questionKey = question_set.questionKey
+            sq.answerKeys = answers
+            suitability_questions[index] = sq       
         end
-    
+        
         return suitability_questions
     end
 end
+

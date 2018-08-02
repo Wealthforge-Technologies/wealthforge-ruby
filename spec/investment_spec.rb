@@ -115,6 +115,7 @@ describe WealthForge::Investment do
       old_json_investment_individual_funding = JSON['{
         "investor": {
            "address":"24 Snoshu",
+           "address2":"suite 221",
            "firstName":"David",
            "lastName":"Smith",
            "state":"AK",
@@ -167,6 +168,7 @@ describe WealthForge::Investment do
               "title": "signatory title",
               "city": "Riverhead",
               "address": "99 River Rd",
+              "address2": "Unit A",
               "state": "VA",
               "zip": "22152",
               "firstName": "Donna",
@@ -200,9 +202,63 @@ describe WealthForge::Investment do
           }]
         }']
 
-      response = WealthForge::Investment.create old_json_investment_entity
-      pp response
-      expect(response['errors']).to eq nil
+      
+        old_json_investment_suitability = JSON['{
+          "investor": {
+             "address":"24 Snoshu",
+             "name":"Dino LLC",
+             "firstName":"David",
+             "lastName":"Smith",
+             "state":"AK",
+             "city":"Anchorage",
+             "zip":"90001",
+             "email":"dino.simone+alaska@lexshares.com",
+             "investorType": "ENTITY",
+             "investorSubType": "OTHER",
+             "accreditation": "INCOME",
+             "phone":"123-123-1212",
+             "dob":"1980-01-01",
+             "taxId":"000-00-0000",
+             "status":"INVESTOR_ACTIVE"
+          },
+          "account": {
+              "name":"Kelly Tester07",
+              "routing":"123456789",
+              "number":"12431424"
+            },
+          "investAmount": 75000,
+          "amount": 75000,
+          "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+          "offeringName": "ACB LLC",
+          "status": "INVESTMENT_PENDING",
+          "paymentType": "ACH",
+          "suitabilityQuestion":[  
+            {  
+               "answerKeys":["a"],
+               "questionKey":"Experience"
+            },
+            {  
+               "answerKeys":["b"],
+               "questionKey":"Objective"
+            },
+            {  
+               "answerKeys":["c"],
+               "questionKey":"Tolerance"
+            },
+            {  
+               "answerKeys":[  
+                  "a",
+                  "b",
+                  "d"
+               ],
+               "questionKey":"Other Investments"
+            }
+         ]
+        }']
+      
+      # response = WealthForge::Investment.create old_json_investment_entity
+      # pp response
+      # expect(response['errors']).to eq nil
 
       # example with suitability and stash
       response = WealthForge::Investment.create old_json_investment_signatory
@@ -221,11 +277,15 @@ describe WealthForge::Investment do
       pp response
       expect(response['errors']).to eq nil
 
-      # Get Investment by ID
-      subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
-      response = WealthForge::Investment.get subscription_id
+      response = WealthForge::Investment.create old_json_investment_suitability
       pp response
       expect(response['errors']).to eq nil
+
+      # # Get Investment by ID
+      # subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
+      # response = WealthForge::Investment.get subscription_id
+      # pp response
+      # expect(response['errors']).to eq nil
 
 
       # example of error response 
