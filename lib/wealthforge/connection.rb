@@ -55,6 +55,22 @@ class WealthForge::Connection
     return json_body
   end
 
+  def self.patch(endpoint, params)
+    begin
+      response = connection.patch do |req|
+        req.url endpoint
+        req.headers['Content-Type'] = 'application/json'
+      end
+    rescue => e
+      raise WealthForge::ApiException.new(e)
+    end
+    # json_body = nil
+    if response.body != nil
+      json_body = JSON.parse(response.body)
+    end 
+    return json_body
+  end
+
 
   def self.prep_params(params)
     return if params.nil?

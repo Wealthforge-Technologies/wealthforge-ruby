@@ -18,6 +18,10 @@ class WealthForge::Investment
           WealthForge::Connection.file_upload "files/#{subscription_id}", file_path
     end
 
+    def self.cancel_subscription(subscription_id)
+        WealthForge::Connection.patch "subscriptions/#{subscription_id}/status/SPONSOR_CANCELLED", nil
+    end
+
     # def self.create_subscription_agreement(investment_id, params)
     #     # TODO: complete file upload
 

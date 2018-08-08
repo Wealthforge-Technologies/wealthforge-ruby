@@ -256,9 +256,9 @@ describe WealthForge::Investment do
          ]
         }']
       
-      # response = WealthForge::Investment.create old_json_investment_entity
-      # pp response
-      # expect(response['errors']).to eq nil
+      response = WealthForge::Investment.create old_json_investment_entity
+      pp response
+      expect(response['errors']).to eq nil
 
       # example with suitability and stash
       response = WealthForge::Investment.create old_json_investment_signatory
@@ -281,6 +281,9 @@ describe WealthForge::Investment do
       pp response
       expect(response['errors']).to eq nil
 
+      response = WealthForge::Investment.cancel_subscription "a3a1011d-ac0a-4845-882a-d1c412458218"
+      expect(response).to eq nil
+
       # # Get Investment by ID
       # subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
       # response = WealthForge::Investment.get subscription_id
@@ -298,7 +301,7 @@ describe WealthForge::Investment do
       file = "#{Dir.pwd}/spec/files/test_file.pdf"
       subscription_id = "00000000-0000-0000-0000-000000000000"
       response = WealthForge::Investment.file_upload file, subscription_id
-  
+      pp response
       # expect(response['errors']).to eq nil
 
     end
