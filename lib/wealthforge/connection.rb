@@ -64,8 +64,8 @@ class WealthForge::Connection
     rescue => e
       raise WealthForge::ApiException.new(e)
     end
-    # json_body = nil
-    if response.body != nil
+    json_body = nil
+    if response.body != ""
       json_body = JSON.parse(response.body)
     end 
     return json_body
