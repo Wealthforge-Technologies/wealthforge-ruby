@@ -11,7 +11,8 @@ class WealthForge::Offering
     wf_model = {
       data: {
         attributes:{
-          title: nil,
+          name: nil,
+          classTitle: nil,
           issuerId: nil,
           offeringType: nil,
           startDate: nil,
@@ -53,23 +54,13 @@ class WealthForge::Offering
       offering.maximumRaise = WealthForge::Util.wf_currency(request.offerDetails[0].maxRaise)
       offering.minimumInvestment = WealthForge::Util.wf_currency(request.offerDetails[0].minInvestment)
       offering.paymentMethods = request.offerDetails[0].paymentMethods
-      offering.status = "PENDING_REVIEW"
+      offering.status = wf_offering_status(request.status) 
       offering.securityTypes[0] = wf_security_type(offering.securityTypes[0], request)
-      offering.title = request.offerDetails[0].title
-
-      pp offering
+      offering.name = request.offerDetails[0].title
+      offering.classTitle = request.offerDetails[0].classTitle      
       return offering
-    end 
-    
-# TODO: should this go in stash
-    # "previouslyRaised":0,
-    # "offerDetails":[
-    #     {
-    #         "issued":1000000
-    #         "postMoneyValuation":1000000,
-    #         "offerDetailType":"EQUITY",
-    #     }
-    # ],
+  end 
+
 
   def self.wf_security_type(security_type, request)
     case request.offerDetails[0].instrumentType
@@ -85,6 +76,16 @@ class WealthForge::Offering
     offering_type = {
       "MEMO_EQUITY_D506B" => "REG_D_506_B", 
       "MEMO_EQUITY_D506C" => "REG_D_506_C" 
+    }
+    return offering_type[type]
+  end
+
+  def self.wf_offering_status (type)
+    offering_type = {
+      "OFFERING_ACTIVE" => "ACTIVE", 
+      "OFFERING_CLOSED" => "PAUSED",
+      "OFFERING_INACTIVE" => "PAUSED",
+      "OFFERING_PENDING" => "PENDING_REVIEW"
     }
     return offering_type[type]
   end

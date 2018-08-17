@@ -29,7 +29,7 @@ describe WealthForge::Investment do
            "investorType": "ENTITY",
            "investorSubType": "OTHER",
            "accreditation": "INCOME",
-           "phone":"123-123-1212",
+           "phone":"1231231212",
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "status":"INVESTOR_ACTIVE"
@@ -41,7 +41,7 @@ describe WealthForge::Investment do
           },
         "investAmount": 75000,
         "amount": 75000,
-        "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+        "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
         "offeringName": "ACB LLC",
         "status": "INVESTMENT_PENDING",
         "paymentType": "ACH"
@@ -62,7 +62,7 @@ describe WealthForge::Investment do
            "investorType": "ENTITY",
            "investorSubType": "OTHER",
            "accreditation": "INCOME",
-           "phone":"123-123-1212",
+           "phone":"1231231212",
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "investmentRisk":null,
@@ -78,7 +78,7 @@ describe WealthForge::Investment do
           },
         "investAmount": 75000,
         "amount": 75000,
-        "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+        "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
         "offeringName": "ACB LLC",
         "status": "INVESTMENT_PENDING",
         "paymentType": "ACH"
@@ -97,7 +97,7 @@ describe WealthForge::Investment do
            "investorType": "ENTITY",
            "investorSubType": "OTHER",
            "accreditation": "INCOME",
-           "phone":"123-123-1212",
+           "phone":"1231231212",
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "investmentRisk":null,
@@ -105,7 +105,7 @@ describe WealthForge::Investment do
         },
         "investAmount": 75000,
         "amount": 75000,
-        "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+        "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
         "offeringName": "ACB LLC",
         "status": "INVESTMENT_PENDING",
         "paymentType": "WIRE"
@@ -124,7 +124,7 @@ describe WealthForge::Investment do
            "email":"dino.simone+alaska@lexshares.com",
            "investorType": "INDIVIDUAL",
            "accreditation": "INCOME",
-           "phone":"123-123-1212",
+           "phone":"1231231212",
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "investmentRisk":null,
@@ -141,7 +141,7 @@ describe WealthForge::Investment do
           },
         "investAmount": 75000,
         "amount": 75000,
-        "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+        "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
         "offeringName": "ACB LLC",
         "status": "INVESTMENT_PENDING",
         "paymentType": "ACH"
@@ -159,7 +159,7 @@ describe WealthForge::Investment do
            "investorType": "ENTITY",
            "investorSubType": "OTHER",
            "accreditation": "INCOME",
-           "phone":"123-123-1212",
+           "phone":"1231231212",
            "dob":"1980-01-01",
            "taxId":"000-00-0000",
            "investmentRisk":null,
@@ -186,7 +186,7 @@ describe WealthForge::Investment do
             },
           "investAmount": 75000,
           "amount": 75000,
-          "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+          "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
           "offeringName": "ACB LLC",
           "status": "INVESTMENT_PENDING",
           "paymentType": "ACH",
@@ -216,7 +216,7 @@ describe WealthForge::Investment do
              "investorType": "ENTITY",
              "investorSubType": "OTHER",
              "accreditation": "INCOME",
-             "phone":"123-123-1212",
+             "phone":"1231231212",
              "dob":"1980-01-01",
              "taxId":"000-00-0000",
              "status":"INVESTOR_ACTIVE"
@@ -228,7 +228,7 @@ describe WealthForge::Investment do
             },
           "investAmount": 75000,
           "amount": 75000,
-          "offerDetail": "62eb0e80-8421-4344-9de2-ac69cfeedd1b",
+          "offerDetail": "179a984f-24c5-4ee9-a230-c2d4ca6f597a",
           "offeringName": "ACB LLC",
           "status": "INVESTMENT_PENDING",
           "paymentType": "ACH",
@@ -281,8 +281,8 @@ describe WealthForge::Investment do
       pp response
       expect(response['errors']).to eq nil
 
-      response = WealthForge::Investment.cancel_subscription "a3a1011d-ac0a-4845-882a-d1c412458218"
-      expect(response).to eq nil
+      # response = WealthForge::Investment.cancel_subscription "4d2ba9c2-345e-4b43-b21c-ccd351d8712d"
+      # expect(response).to eq nil
 
       # # Get Investment by ID
       # subscription_id = "3e9e7dc1-ad81-4638-ae32-9276b38ac845"
@@ -298,10 +298,10 @@ describe WealthForge::Investment do
       # pp response
       # expect(response['errors']).to eq nil
 
-      file = "#{Dir.pwd}/spec/files/test_file.pdf"
-      subscription_id = "00000000-0000-0000-0000-000000000000"
-      response = WealthForge::Investment.file_upload file, subscription_id
-      pp response
+      # file = "#{Dir.pwd}/spec/files/test_file.pdf"
+      # subscription_id = "4d2ba9c2-345e-4b43-b21c-ccd351d8712d"
+      # response = WealthForge::Investment.file_upload file, subscription_id
+      # pp response
       # expect(response['errors']).to eq nil
 
     end

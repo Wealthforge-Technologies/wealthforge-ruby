@@ -52,7 +52,8 @@ class WealthForge::Investment
                                 postalCode: nil,
                                 stateProv: nil,
                                 street1: nil,
-                                street2: nil
+                                street2: nil,
+                                street3: nil
                             },
                             crdNumber: nil,
                             dateOfBirth: nil,
@@ -71,6 +72,7 @@ class WealthForge::Investment
                                     city: nil,
                                     street1: nil,
                                     street2: nil,
+                                    street3: nil,
                                     stateProv: nil,
                                     postalCode: nil, 
                                     country: nil
@@ -98,11 +100,7 @@ class WealthForge::Investment
                         }
                     ],
                     investmentAmount: nil,
-                    offering: {
-                        id: nil, 
-                        name: nil, 
-                        securityType: nil
-                    },
+                    offeringId: nil,
                     stash: {
                         field1: nil,
                         field2: nil
@@ -127,7 +125,7 @@ class WealthForge::Investment
         wf_object.data.attributes.investmentAmount = in_object.amount.to_s 
         wf_object.data.attributes.investors[0] = wf_investor(in_object.investor, wf_object.data.attributes.investors[0])
         wf_object.data.attributes.fundingMethods[0] = wf_funding_method(in_object, wf_object.data.attributes.fundingMethods[0])
-        wf_object.data.attributes.offering = wf_offering_details(in_object, wf_object.data.attributes.offering)
+        wf_object.data.attributes.offeringId = in_object.offerDetail
         wf_object.data.attributes.suitabilityQuestions = wf_suitability_questions(in_object, wf_object.data.attributes.suitabilityQuestions)
 
         #stash allows for the storage of custom fields in the form of JSON 
@@ -152,6 +150,7 @@ class WealthForge::Investment
         # investor address
         investor.address.street1 = request.address
         investor.address.street2 = request.address2
+        investor.address.street3 = request.address3
         investor.address.city = request.city
         investor.address.stateProv = request.state
         investor.address.postalCode = request.zip
@@ -190,6 +189,7 @@ class WealthForge::Investment
                 investor.signatory.dateOfBirth =request.dob
                 investor.signatory.address.street1 = request.address
                 investor.signatory.address.street2 = request.address2
+                investor.signatory.address.street3 = request.address3
                 investor.signatory.address.city = request.city
                 investor.signatory.address.stateProv = request.state
                 investor.signatory.address.postalCode = request.zip
@@ -248,14 +248,6 @@ class WealthForge::Investment
         fundingMethod.investmentAmount = request.amount.to_s
         return fundingMethod
     end 
-
-    # fill data.attributes.Offering
-    def self.wf_offering_details (request, offering)
-        offering.name = request.offeringName
-        offering.securityType = request.securityType
-        offering.id = request.offerDetail
-        return offering
-    end
 
     def self.wf_suitability_questions(request, suitability_questions)
         if request.suitabilityQuestion == nil 

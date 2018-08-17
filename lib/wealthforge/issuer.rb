@@ -21,8 +21,8 @@ class WealthForge::Issuer
             postalCode: nil,
             stateProv: nil,
             street1: nil,
-            street2: nil
-        
+            street2: nil,
+            street3: nil
           },
           bank: nil,
           contact: {
@@ -87,6 +87,8 @@ class WealthForge::Issuer
   #fills data.attribute.issuer.address
   def self.wf_issuer_address(address, request)
     address.street1 = request.address
+    address.street2 = request.address2
+    address.street3 = request.address3
     address.city = request.city
     address.stateProv = request.state.code
     address.postalCode = request.zip

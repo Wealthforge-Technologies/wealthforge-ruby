@@ -32,7 +32,7 @@ describe WealthForge::Issuer do
         "ein": "999999999",
         "email": "wealthforge_api_test@mailinator.com",
         "phone": "2125551234",
-        "sponsor": "00000000-0000-0000-0000-000000000000"
+        "sponsor": "cddee352-099b-494a-adb8-cc70b5cb86f6"
       }']
 
       response = WealthForge::Issuer.create old_json

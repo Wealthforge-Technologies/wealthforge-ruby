@@ -13,7 +13,7 @@ describe WealthForge::Offering do
 
     it "create OLD offering" do
       old_json = JSON['{
-        "issuer":"07c8a6db-66d7-4c97-a1e5-136f5957727e",
+        "issuer":"d6ee188a-f186-41f6-a069-c51b09d73fc2",
         "totalShare":1000000,
         "previouslyRaised":0,
         "minRaise":999999,
@@ -30,7 +30,8 @@ describe WealthForge::Offering do
                 "instrumentType":"SHARE_COMMON",
                 "regulationType":"MEMO_EQUITY_D506C",
                 "paymentMethods": ["ACH", "WIRE"],
-                "title": "The ABC Offering"
+                "title": "The ABC Offering",
+                "classTitle": "ABC debt loan terms (3 yr, 5 yr)"
             }
         ],
         "status":"OFFERING_PENDING",
